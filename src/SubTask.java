@@ -1,18 +1,19 @@
 public class SubTask extends Task{
 
 
-    private Epic epic;
+    public long getEpicId() {
+        return epicId;
+    }
 
-    public SubTask(long id, String description, String name, Enum<Status> statusEnum, Epic newEpic) {
+    public void setEpicId(long epicId) {
+        this.epicId = epicId;
+    }
+
+    long epicId;
+
+    public SubTask(long id, String description, String name, Enum<Status> statusEnum, long newEpicId) {
         super(id, description, name, statusEnum);
-        this.epic = newEpic;
+        this.epicId = newEpicId;
     }
 
-    public Epic getEpic() {
-        return epic;
-    }
-
-    public void setEpic(Epic epic) {
-        this.epic = epic;
-    }
 }

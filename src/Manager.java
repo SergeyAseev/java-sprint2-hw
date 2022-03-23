@@ -6,35 +6,41 @@ public class Manager {
 
     static long index = 0;
 
-    Map<Long, Task> taskMap = new HashMap<>();
-    Map<Long, SubTask> subTaskMap = new HashMap<>();
-    Map<Long, Epic> epicMap = new HashMap<>();
+    Map<Long, Task> tasksMap = new HashMap<>();
+    Map<Long, SubTask> subTasksMap = new HashMap<>();
+    Map<Long, Epic> epicsMap = new HashMap<>();
 
     /**
      * Создаем задачу
+     * @return
      */
-    protected void createTask(String description, String name, Enum<Status> statusEnum) {
+    protected Task createTask(String description, String name, Enum<Status> statusEnum) {
         long newIndex = increaseIntId();
         Task task = new Task(newIndex, description, name, statusEnum);
-        taskMap.put(newIndex, task);
+        tasksMap.put(newIndex, task);
+        return task;
     }
 
     /**
      * Создаем подзадачу
+     * @return
      */
-    protected void createSubTask(String description, String name, Enum<Status> statusEnum, Epic epicId) {
+    protected SubTask createSubTask(String description, String name, Enum<Status> statusEnum, long epicId) {
         long newIndex = increaseIntId();
         SubTask subTask = new SubTask(newIndex, description, name, statusEnum, epicId);
-        subTaskMap.put(newIndex, subTask);
+        subTasksMap.put(newIndex, subTask);
+        return subTask;
     }
 
     /**
      * Создаем эпик-задачу
+     * @return
      */
-    protected void createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList) {
+    protected Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList) {
         long newIndex = increaseIntId();
         Epic epic = new Epic(newIndex, description, name, statusEnum, subTaskList);
-        epicMap.put(newIndex, epic);
+        epicsMap.put(newIndex, epic);
+        return epic;
     }
 
     /**
@@ -43,7 +49,23 @@ public class Manager {
      * @param epic эпик, который надо обновить
      */
     public void updateEpic(Epic epic) {
+        epicsMap.put(increaseIntId(), epic);
+    }
 
+    /**
+     * Обновляем подзадачу
+     * @param subTask
+     */
+    public void updateSubTask(SubTask subTask) {
+
+    }
+
+    /**
+     * Обновляем задачу
+     * @param task
+     */
+    public void updateTask(Task task) {
+        tasksMap.put(increaseIntId(), task);
     }
 
     /**
@@ -51,9 +73,18 @@ public class Manager {
      */
     protected void updateEpicStatus(Epic epic) {
 
+        if (epicsMap.isEmpty()) {
+            epic.setStatusEnum(Status.NEW);
+            return;
+        }
+
         boolean doneStatus = epic.getSubTaskList()
                 .stream()
                 .allMatch(subTask -> subTask.getStatusEnum().equals(Status.DONE));
+
+        boolean newStatus = epic.getSubTaskList()
+                .stream()
+                .allMatch(subTask -> subTask.getStatusEnum().equals(Status.NEW));
 
         boolean progressStatus = epic.getSubTaskList()
                 .stream()
@@ -61,8 +92,8 @@ public class Manager {
 
         if (doneStatus) {
             epic.setStatusEnum(Status.DONE);
-        } else if (progressStatus) {
-            epic.setStatusEnum(Status.IN_PROGRESS);
+        } else if (newStatus) {
+            epic.setStatusEnum(Status.NEW);
         } else {
             epic.setStatusEnum(Status.NEW);
         }
@@ -81,7 +112,7 @@ public class Manager {
      * @return карты всех задач
      */
     protected Object returnAllTasks() {
-        return !taskMap.isEmpty() ? taskMap : null;
+        return !tasksMap.isEmpty() ? tasksMap : null;
     }
 
     /**
@@ -90,7 +121,7 @@ public class Manager {
      * @return карту всех подзадач
      */
     protected Object returnAllSubTasks() {
-        return !subTaskMap.isEmpty() ? subTaskMap : null;
+        return !subTasksMap.isEmpty() ? subTasksMap : null;
     }
 
     /**
@@ -99,30 +130,34 @@ public class Manager {
      * @return карту всех эпиков
      */
     protected Object returnAllEpics() {
-        return !epicMap.isEmpty() ? epicMap : null;
+        return !epicsMap.isEmpty() ? epicsMap : null;
     }
 
     /**
      * Удаляем все задачи
      */
     protected void removeAllTasks() {
-        taskMap.clear();
+        tasksMap.clear();
     }
 
     /**
      * Удаляем все подзадачи
      */
     protected void removeAllSubTasks() {
-        subTaskMap.clear();
-        //TODO обновить статус эпиков
+        subTasksMap.clear();
+
+        for (Map.Entry<Long, Epic> epic: epicsMap.entrySet()) {
+            epic.getValue().setStatusEnum(Status.NEW);
+        }
     }
 
     /**
-     * Удаяляем всем эпики
+     * Удаляем все эпики и их подзадачи
      */
     protected void removeAllEpics() {
-        epicMap.clear();
-        //TODO удалить все подзадачи
+
+        removeAllSubTasks();
+        epicsMap.clear();
     }
 
     /**
@@ -132,7 +167,7 @@ public class Manager {
      * @return определенная задача
      */
     protected Task returnTaskById(long taskId) {
-        return !taskMap.isEmpty() ? taskMap.get(taskId) : null;
+        return !tasksMap.isEmpty() ? tasksMap.get(taskId) : null;
     }
 
     /**
@@ -142,7 +177,7 @@ public class Manager {
      * @return определенная подзадача
      */
     protected SubTask returnSubTaskById(long subTaskId) {
-        return !subTaskMap.isEmpty() ? subTaskMap.get(subTaskId) : null;
+        return !subTasksMap.isEmpty() ? subTasksMap.get(subTaskId) : null;
     }
 
     /**
@@ -152,7 +187,7 @@ public class Manager {
      * @return определенный эпик
      */
     protected Epic returnEpicById(long epicId) {
-        return !epicMap.isEmpty() ? epicMap.get(epicId) : null;
+        return !epicsMap.isEmpty() ? epicsMap.get(epicId) : null;
     }
 
     /**
@@ -161,8 +196,8 @@ public class Manager {
      * @param taskId уникальный идентификатор задачи
      */
     protected void removeTaskById(long taskId) {
-        if (!taskMap.isEmpty()) {
-            taskMap.remove(taskId);
+        if (!tasksMap.isEmpty()) {
+            tasksMap.remove(taskId);
         }
     }
 
@@ -172,8 +207,8 @@ public class Manager {
      * @param subTaskId уникальный идентификатор подзадачи
      */
     protected void removeSubTaskById(long subTaskId) {
-        if (!subTaskMap.isEmpty()) {
-            subTaskMap.remove(subTaskId);
+        if (!subTasksMap.isEmpty()) {
+            subTasksMap.remove(subTaskId);
         }
     }
 
@@ -183,8 +218,8 @@ public class Manager {
      * @param epicId уникальный идентификатор эпика
      */
     protected void removeEpicById(long epicId) {
-        if (!epicMap.isEmpty()) {
-            epicMap.remove(epicId);
+        if (!epicsMap.isEmpty()) {
+            epicsMap.remove(epicId);
         }
     }
 
@@ -195,6 +230,16 @@ public class Manager {
      * @return список подзадач
      */
     protected List<SubTask> returnSubTasksForEpicById(long epicId) {
+
+        if (!epicsMap.isEmpty()) {
+            if (epicsMap.containsKey(epicId)) {
+                Epic epic = epicsMap.get(epicId);
+
+                String name = epic.getName();
+
+                return epic.getSubTaskList();
+            }
+        }
         return null;
     }
 }

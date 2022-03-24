@@ -12,6 +12,7 @@ public class Manager {
 
     /**
      * Создаем задачу
+     *
      * @return
      */
     protected Task createTask(String description, String name, Enum<Status> statusEnum) {
@@ -23,6 +24,7 @@ public class Manager {
 
     /**
      * Создаем подзадачу
+     *
      * @return
      */
     protected SubTask createSubTask(String description, String name, Enum<Status> statusEnum, long epicId) {
@@ -34,6 +36,7 @@ public class Manager {
 
     /**
      * Создаем эпик-задачу
+     *
      * @return
      */
     protected Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList) {
@@ -54,14 +57,16 @@ public class Manager {
 
     /**
      * Обновляем подзадачу
+     *
      * @param subTask
      */
     public void updateSubTask(SubTask subTask) {
-
+        subTasksMap.put(increaseIntId(), subTask);
     }
 
     /**
      * Обновляем задачу
+     *
      * @param task
      */
     public void updateTask(Task task) {
@@ -146,7 +151,7 @@ public class Manager {
     protected void removeAllSubTasks() {
         subTasksMap.clear();
 
-        for (Map.Entry<Long, Epic> epic: epicsMap.entrySet()) {
+        for (Map.Entry<Long, Epic> epic : epicsMap.entrySet()) {
             epic.getValue().setStatusEnum(Status.NEW);
         }
     }
@@ -234,12 +239,10 @@ public class Manager {
         if (!epicsMap.isEmpty()) {
             if (epicsMap.containsKey(epicId)) {
                 Epic epic = epicsMap.get(epicId);
-
-                String name = epic.getName();
-
                 return epic.getSubTaskList();
             }
         }
         return null;
     }
+
 }

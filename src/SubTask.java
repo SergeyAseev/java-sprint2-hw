@@ -1,5 +1,6 @@
-public class SubTask extends Task{
+public class SubTask extends Task {
 
+    long epicId;
 
     public long getEpicId() {
         return epicId;
@@ -8,8 +9,6 @@ public class SubTask extends Task{
     public void setEpicId(long epicId) {
         this.epicId = epicId;
     }
-
-    long epicId;
 
     public SubTask(long id, String description, String name, Enum<Status> statusEnum, long newEpicId) {
         super(id, description, name, statusEnum);

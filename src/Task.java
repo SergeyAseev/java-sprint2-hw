@@ -1,4 +1,4 @@
-public class Task{
+public class Task {
 
     Long id;
 
@@ -6,7 +6,7 @@ public class Task{
 
     String name;
 
-    Enum <Status> statusEnum;
+    Enum<Status> statusEnum;
 
     public Task(long id, String description, String name, Enum<Status> statusEnum) {
         this.id = id;

@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class Epic extends Task{
+public class Epic extends Task {
 
     private List<SubTask> subTaskList;
 

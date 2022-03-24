@@ -112,6 +112,46 @@ public class Manager {
     }
 
     /**
+     * Переводим статус задачи в "в процессе"
+     *
+     * @param task экземпляр задачи
+     */
+    protected void startTask(Task task) {
+        task.setStatusEnum(Status.IN_PROGRESS);
+    }
+
+    /**
+     * Переводим статус задачи в "сделано"
+     *
+     * @param task экземпляр задачи
+     */
+    protected void endTask(Task task) {
+        task.setStatusEnum(Status.DONE);
+    }
+
+    /**
+     * Переводим статус подзадачи в "в процессе" и обновляем статус эпика
+     *
+     * @param subTask экземпляр подзадачи
+     */
+    protected void startSubTask(SubTask subTask) {
+        subTask.setStatusEnum(Status.IN_PROGRESS);
+        Epic epic = returnEpicById(subTask.getEpicId());
+        updateEpicStatus(epic);
+    }
+
+    /**
+     * Переводим статус подзадачи в "сделано" и обновляем статус эпика
+     *
+     * @param subTask экземпляр подзадачи
+     */
+    protected void endSubTask(SubTask subTask) {
+        subTask.setStatusEnum(Status.DONE);
+        Epic epic = returnEpicById(subTask.getEpicId());
+        updateEpicStatus(epic);
+    }
+
+    /**
      * Возвразаем все задачи
      *
      * @return карты всех задач
@@ -244,5 +284,4 @@ public class Manager {
         }
         return null;
     }
-
 }

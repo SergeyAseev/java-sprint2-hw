@@ -1,4 +1,10 @@
+package epic;
+
 import java.util.List;
+
+import manager.Manager;
+import subTusk.SubTask;
+import enums.Status;
 
 public class EpicManager extends Manager {
 
@@ -7,7 +13,7 @@ public class EpicManager extends Manager {
      *
      * @return
      */
-    protected Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList) {
+    public Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList) {
         long newIndex = increaseIntId();
         Epic epic = new Epic(newIndex, description, name, statusEnum, subTaskList);
         epicsMap.put(newIndex, epic);
@@ -19,12 +25,6 @@ public class EpicManager extends Manager {
      *
      * @param epic эпик, который надо обновить
      */
-/*  Согласно ТЗ:
-    При обновлении можете считать, что на вход подаётся новый объект,
-    который должен полностью заменить старый. К примеру, метод для
-    обновления эпика может принимать эпик в качестве входных данных public void updateEpic(Epic epic).
-    Если вы храните эпики в HashMap, где ключами являются идентификаторы, то обновление —
-    это запись нового эпика epics.put(epic.getId(), epic)).*/
     public void updateEpic(Epic epic) {
         epicsMap.put(epic.getId(), epic);
     }
@@ -32,7 +32,7 @@ public class EpicManager extends Manager {
     /**
      * обновляем статусы эпик-задач
      */
-    protected void updateEpicStatus(Epic epic) {
+    public void updateEpicStatus(Epic epic) {
 
         if (epicsMap.isEmpty()) {
             epic.setStatusEnum(Status.NEW);
@@ -61,15 +61,15 @@ public class EpicManager extends Manager {
      *
      * @return карту всех эпиков
      */
-    protected Object returnAllEpics() {
+    public Object returnAllEpics() {
         return !epicsMap.isEmpty() ? epicsMap : null;
     }
 
     /**
      * Удаляем все эпики и их подзадачи
      */
-    protected void removeAllEpics() {
-        subTaskManager.removeAllSubTasks();
+    public void removeAllEpics() {
+        Manager.subTaskManager.removeAllSubTasks();
         epicsMap.clear();
     }
 
@@ -79,7 +79,7 @@ public class EpicManager extends Manager {
      * @param epicId уникальный идентификатор эпика
      * @return определенный эпик
      */
-    protected Epic returnEpicById(long epicId) {
+    public Epic returnEpicById(long epicId) {
         return !epicsMap.isEmpty() ? epicsMap.get(epicId) : null;
     }
 
@@ -88,7 +88,7 @@ public class EpicManager extends Manager {
      *
      * @param epicId уникальный идентификатор эпика
      */
-    protected void removeEpicById(long epicId) {
+    public void removeEpicById(long epicId) {
         if (!epicsMap.isEmpty()) {
             epicsMap.remove(epicId);
         }

@@ -1,12 +1,16 @@
+package task;
+
+import enums.Status;
+
 public class Task {
 
-    Long id;
+    protected Long id;
 
-    String description;
+    protected String description;
 
-    String name;
+    protected String name;
 
-    Enum<Status> statusEnum;
+    protected Enum<Status> statusEnum;
 
     public Task(long id, String description, String name, Enum<Status> statusEnum) {
         this.id = id;

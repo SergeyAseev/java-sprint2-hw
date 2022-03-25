@@ -1,11 +1,16 @@
+package task;
+
+import manager.Manager;
+import enums.Status;
+
 public class TaskManager extends Manager {
 
     /**
      * Создаем задачу
      *
-     * @return
+     * @return экземпляр задачи
      */
-    protected Task createTask(String description, String name, Enum<Status> statusEnum) {
+    public Task createTask(String description, String name, Enum<Status> statusEnum) {
         long newIndex = increaseIntId();
         Task task = new Task(newIndex, description, name, statusEnum);
         tasksMap.put(newIndex, task);
@@ -17,7 +22,7 @@ public class TaskManager extends Manager {
      *
      * @param task экземпляр задачи
      */
-    protected void startTask(Task task) {
+    public void startTask(Task task) {
         task.setStatusEnum(Status.IN_PROGRESS);
     }
 
@@ -26,14 +31,14 @@ public class TaskManager extends Manager {
      *
      * @param task экземпляр задачи
      */
-    protected void endTask(Task task) {
+    public void endTask(Task task) {
         task.setStatusEnum(Status.DONE);
     }
 
     /**
      * Обновляем задачу
      *
-     * @param task
+     * @param task экземпляр задачи
      */
     public void updateTask(Task task) {
         tasksMap.put(task.getId(), task);
@@ -44,14 +49,14 @@ public class TaskManager extends Manager {
      *
      * @return карты всех задач
      */
-    protected Object returnAllTasks() {
+    public Object returnAllTasks() {
         return !tasksMap.isEmpty() ? tasksMap : null;
     }
 
     /**
      * Удаляем все задачи
      */
-    protected void removeAllTasks() {
+    public void removeAllTasks() {
         tasksMap.clear();
     }
 
@@ -61,7 +66,7 @@ public class TaskManager extends Manager {
      * @param taskId уникальный идентификатор задачи
      * @return определенная задача
      */
-    protected Task returnTaskById(long taskId) {
+    public Task returnTaskById(long taskId) {
         return !tasksMap.isEmpty() ? tasksMap.get(taskId) : null;
     }
 
@@ -70,7 +75,7 @@ public class TaskManager extends Manager {
      *
      * @param taskId уникальный идентификатор задачи
      */
-    protected void removeTaskById(long taskId) {
+    public void removeTaskById(long taskId) {
         if (!tasksMap.isEmpty()) {
             tasksMap.remove(taskId);
         }

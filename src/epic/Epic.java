@@ -1,8 +1,14 @@
+package epic;
+
 import java.util.List;
+
+import task.Task;
+import subTusk.SubTask;
+import enums.Status;
 
 public class Epic extends Task {
 
-    private List<SubTask> subTaskList;
+    protected List<SubTask> subTaskList;
 
     public Epic(long id, String description, String name, Enum<Status> statusEnum, List<SubTask> newSubTaskList) {
         super(id, description, name, statusEnum);

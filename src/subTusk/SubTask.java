@@ -1,6 +1,11 @@
+package subTusk;
+
+import task.Task;
+import enums.Status;
+
 public class SubTask extends Task {
 
-    long epicId;
+    protected long epicId;
 
     public long getEpicId() {
         return epicId;

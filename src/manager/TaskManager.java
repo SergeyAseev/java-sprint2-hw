@@ -1,6 +1,6 @@
-package task;
+package manager;
 
-import manager.Manager;
+import entities.Task;
 import enums.Status;
 
 public class TaskManager extends Manager {

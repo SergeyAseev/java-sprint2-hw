@@ -1,10 +1,10 @@
-package subTusk;
+package manager;
 
 import java.util.List;
 import java.util.Map;
 
-import epic.Epic;
-import manager.Manager;
+import entities.Epic;
+import entities.SubTask;
 import enums.Status;
 
 
@@ -29,8 +29,8 @@ public class SubTaskManager extends Manager {
      */
     public void startSubTask(SubTask subTask) {
         subTask.setStatusEnum(Status.IN_PROGRESS);
-        Epic epic = Manager.epicManager.returnEpicById(subTask.getEpicId());
-        Manager.epicManager.updateEpicStatus(epic);
+        Epic epic = epicManager.returnEpicById(subTask.getEpicId());
+        epicManager.updateEpicStatus(epic);
     }
 
     /**
@@ -40,8 +40,8 @@ public class SubTaskManager extends Manager {
      */
     public void endSubTask(SubTask subTask) {
         subTask.setStatusEnum(Status.DONE);
-        Epic epic = Manager.epicManager.returnEpicById(subTask.getEpicId());
-        Manager.epicManager.updateEpicStatus(epic);
+        Epic epic = epicManager.returnEpicById(subTask.getEpicId());
+        epicManager.updateEpicStatus(epic);
     }
 
     /**
@@ -68,7 +68,7 @@ public class SubTaskManager extends Manager {
     public void removeAllSubTasks() {
         subTasksMap.clear();
 
-        for (Map.Entry<Long, Epic> epic : Manager.epicManager.epicsMap.entrySet()) {
+        for (Map.Entry<Long, Epic> epic : epicManager.epicsMap.entrySet()) {
             epic.getValue().setStatusEnum(Status.NEW);
         }
     }
@@ -102,9 +102,9 @@ public class SubTaskManager extends Manager {
      */
     public List<SubTask> returnSubTasksForEpicById(long epicId) {
 
-        if (!Manager.epicManager.epicsMap.isEmpty()) {
-            if (Manager.epicManager.epicsMap.containsKey(epicId)) {
-                Epic epic = Manager.epicManager.epicsMap.get(epicId);
+        if (!epicManager.epicsMap.isEmpty()) {
+            if (epicManager.epicsMap.containsKey(epicId)) {
+                Epic epic = epicManager.epicsMap.get(epicId);
                 return epic.getSubTaskList();
             }
         }

@@ -3,12 +3,9 @@ package manager;
 import java.util.HashMap;
 import java.util.Map;
 
-import epic.Epic;
-import epic.EpicManager;
-import subTusk.SubTask;
-import subTusk.SubTaskManager;
-import task.Task;
-import task.TaskManager;
+import entities.Epic;
+import entities.SubTask;
+import entities.Task;
 
 public class Manager {
 

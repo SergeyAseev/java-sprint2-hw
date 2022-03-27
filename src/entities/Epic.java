@@ -1,9 +1,7 @@
-package epic;
+package entities;
 
 import java.util.List;
 
-import task.Task;
-import subTusk.SubTask;
 import enums.Status;
 
 public class Epic extends Task {

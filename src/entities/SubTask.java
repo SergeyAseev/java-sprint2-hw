@@ -1,6 +1,5 @@
-package subTusk;
+package entities;
 
-import task.Task;
 import enums.Status;
 
 public class SubTask extends Task {

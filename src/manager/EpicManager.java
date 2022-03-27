@@ -1,9 +1,9 @@
-package epic;
+package manager;
 
 import java.util.List;
 
-import manager.Manager;
-import subTusk.SubTask;
+import entities.Epic;
+import entities.SubTask;
 import enums.Status;
 
 public class EpicManager extends Manager {
@@ -69,7 +69,7 @@ public class EpicManager extends Manager {
      * Удаляем все эпики и их подзадачи
      */
     public void removeAllEpics() {
-        Manager.subTaskManager.removeAllSubTasks();
+        subTaskManager.removeAllSubTasks();
         epicsMap.clear();
     }
 

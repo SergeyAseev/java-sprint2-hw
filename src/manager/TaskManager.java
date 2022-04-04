@@ -3,62 +3,47 @@ package manager;
 import entities.Task;
 import enums.Status;
 
-public class TaskManager extends Manager {
+public interface TaskManager {
 
     /**
      * Создаем задачу
      *
      * @return экземпляр задачи
      */
-    public Task createTask(String description, String name, Enum<Status> statusEnum) {
-        long newIndex = increaseIntId();
-        Task task = new Task(newIndex, description, name, statusEnum);
-        tasksMap.put(newIndex, task);
-        return task;
-    }
+    public Task createTask(String description, String name, Enum<Status> statusEnum);
 
     /**
      * Переводим статус задачи в "в процессе"
      *
      * @param task экземпляр задачи
      */
-    public void startTask(Task task) {
-        task.setStatusEnum(Status.IN_PROGRESS);
-    }
+    public void startTask(Task task);
 
     /**
      * Переводим статус задачи в "сделано"
      *
      * @param task экземпляр задачи
      */
-    public void endTask(Task task) {
-        task.setStatusEnum(Status.DONE);
-    }
+    public void endTask(Task task);
 
     /**
      * Обновляем задачу
      *
      * @param task экземпляр задачи
      */
-    public void updateTask(Task task) {
-        tasksMap.put(task.getId(), task);
-    }
+    public void updateTask(Task task);
 
     /**
      * Возвразаем все задачи
      *
      * @return карты всех задач
      */
-    public Object returnAllTasks() {
-        return !tasksMap.isEmpty() ? tasksMap : null;
-    }
+    public Object returnAllTasks();
 
     /**
      * Удаляем все задачи
      */
-    public void removeAllTasks() {
-        tasksMap.clear();
-    }
+    public void removeAllTasks();
 
     /**
      * Возвращаем задачу по уникальному идентификатору
@@ -66,20 +51,14 @@ public class TaskManager extends Manager {
      * @param taskId уникальный идентификатор задачи
      * @return определенная задача
      */
-    public Task returnTaskById(long taskId) {
-        return !tasksMap.isEmpty() ? tasksMap.get(taskId) : null;
-    }
+    public Task returnTaskById(long taskId);
 
     /**
      * Удаляем задачу по универсальному идентификатору
      *
      * @param taskId уникальный идентификатор задачи
      */
-    public void removeTaskById(long taskId) {
-        if (!tasksMap.isEmpty()) {
-            tasksMap.remove(taskId);
-        }
-    }
+    public void removeTaskById(long taskId);
 
 
 }

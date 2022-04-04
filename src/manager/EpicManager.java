@@ -6,7 +6,7 @@ import entities.Epic;
 import entities.SubTask;
 import enums.Status;
 
-public class EpicManager extends Manager {
+public class EpicManager extends InMemoryTaskManager {
 
     /**
      * Создаем эпик-задачу
@@ -80,7 +80,14 @@ public class EpicManager extends Manager {
      * @return определенный эпик
      */
     public Epic returnEpicById(long epicId) {
-        return !epicsMap.isEmpty() ? epicsMap.get(epicId) : null;
+
+        if (!epicsMap.isEmpty()) {
+            getHistory();
+            historyList.add(epicsMap.get(epicId));
+            return epicsMap.get(epicId);
+        } else {
+            return null;
+        }
     }
 
     /**

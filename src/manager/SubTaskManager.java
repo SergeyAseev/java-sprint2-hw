@@ -8,7 +8,7 @@ import entities.SubTask;
 import enums.Status;
 
 
-public class SubTaskManager extends Manager {
+public class SubTaskManager extends InMemoryTaskManager {
 
     /**
      * Создаем подзадачу
@@ -80,7 +80,13 @@ public class SubTaskManager extends Manager {
      * @return определенная подзадача
      */
     public SubTask returnSubTaskById(long subTaskId) {
-        return !subTasksMap.isEmpty() ? subTasksMap.get(subTaskId) : null;
+        if (!subTasksMap.isEmpty()) {
+            getHistory();
+            historyList.add(subTasksMap.get(subTaskId));
+            return subTasksMap.get(subTaskId);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -92,6 +98,7 @@ public class SubTaskManager extends Manager {
         if (!subTasksMap.isEmpty()) {
             subTasksMap.remove(subTaskId);
         }
+
     }
 
     /**

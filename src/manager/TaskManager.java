@@ -1,64 +1,68 @@
 package manager;
 
+import entities.Epic;
+import entities.SubTask;
 import entities.Task;
 import enums.Status;
 
+import java.util.List;
+
 public interface TaskManager {
 
-    /**
-     * Создаем задачу
-     *
-     * @return экземпляр задачи
-     */
-    public Task createTask(String description, String name, Enum<Status> statusEnum);
+    // Создаем объекты по типам
+    Task createTask(String description, String name, Enum<Status> statusEnum);
 
-    /**
-     * Переводим статус задачи в "в процессе"
-     *
-     * @param task экземпляр задачи
-     */
-    public void startTask(Task task);
+    Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList);
 
-    /**
-     * Переводим статус задачи в "сделано"
-     *
-     * @param task экземпляр задачи
-     */
-    public void endTask(Task task);
+    SubTask createSubTask(String description, String name, Enum<Status> statusEnum, long epicId);
 
-    /**
-     * Обновляем задачу
-     *
-     * @param task экземпляр задачи
-     */
-    public void updateTask(Task task);
+    // Переводим статус объектов в "в процессе"
+    void startTask(Task task);
 
-    /**
-     * Возвразаем все задачи
-     *
-     * @return карты всех задач
-     */
-    public Object returnAllTasks();
+    void startSubTask(SubTask subTask);
 
-    /**
-     * Удаляем все задачи
-     */
-    public void removeAllTasks();
+    // Переводим статус объектов в "сделано"
+    void endTask(Task task);
 
-    /**
-     * Возвращаем задачу по уникальному идентификатору
-     *
-     * @param taskId уникальный идентификатор задачи
-     * @return определенная задача
-     */
-    public Task returnTaskById(long taskId);
+    void endSubTask(SubTask subTask);
 
-    /**
-     * Удаляем задачу по универсальному идентификатору
-     *
-     * @param taskId уникальный идентификатор задачи
-     */
-    public void removeTaskById(long taskId);
+    //Обновляем объекты по типу
+    void updateTask(Task task);
 
+    void updateEpic(Epic epic);
+
+    void updateSubTask(SubTask subTask);
+
+    void updateEpicStatus(Epic epic);
+
+    // Возвразаем все объекты по типам
+    Object returnAllTasks();
+
+    Object returnAllEpics();
+
+    Object returnAllSubTasks();
+
+    // Удаляем объекты
+    void removeAllTasks();
+
+    void removeAllEpics();
+
+    void removeAllSubTasks();
+
+    // Возвращаем объекты по уникальному идентификатору
+    Task returnTaskById(long taskId);
+
+    Epic returnEpicById(long epicId);
+
+    SubTask returnSubTaskById(long subTaskId);
+
+    List<SubTask> returnSubTasksForEpicById(long epicId);
+
+    // Удаляем объекты по универсальному идентификатору
+    void removeTaskById(long taskId);
+
+    void removeEpicById(long epicId);
+
+    void removeSubTaskById(long subTaskId);
 
 }

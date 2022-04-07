@@ -65,4 +65,6 @@ public interface TaskManager {
 
     void removeSubTaskById(long subTaskId);
 
+    // Получаем историю
+    List<Task> getHistory();
 }

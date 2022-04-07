@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InMemoryTaskManager implements TaskManager{
+public class InMemoryTaskManager implements TaskManager {
 
     static long index = 0;
-    public Map<Long, Epic> epicsMap = new HashMap<>();
-    public Map<Long, SubTask> subTasksMap = new HashMap<>();
-    public Map<Long, Task> tasksMap = new HashMap<>();
-    //TaskManager manager = Managers.getDefault();
-    InMemoryHistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
+    private Map<Long, Epic> epicsMap = new HashMap<>();
+    private Map<Long, SubTask> subTasksMap = new HashMap<>();
+    private Map<Long, Task> tasksMap = new HashMap<>();
+
+    private HistoryManager historyManager = Managers.getDefaultHistory();
 
     /**
      * увеличивает уникальный идентификатор
@@ -63,7 +63,7 @@ public class InMemoryTaskManager implements TaskManager{
         updateEpicStatus(epic);
     }
 
-     @Override
+    @Override
     public void endTask(Task task) {
         task.setStatusEnum(Status.DONE);
     }
@@ -154,9 +154,9 @@ public class InMemoryTaskManager implements TaskManager{
     @Override
     public Task returnTaskById(long taskId) {
         if (!tasksMap.isEmpty()) {
-            inMemoryHistoryManager.getHistory();
-            inMemoryHistoryManager.historyList.add(tasksMap.get(taskId));
-            return tasksMap.get(taskId);
+            Task task = tasksMap.get(taskId);
+            historyManager.addTask(task);
+            return task;
         } else {
             return null;
         }
@@ -166,9 +166,9 @@ public class InMemoryTaskManager implements TaskManager{
     public Epic returnEpicById(long epicId) {
 
         if (!epicsMap.isEmpty()) {
-            inMemoryHistoryManager.getHistory();
-            inMemoryHistoryManager.historyList.add(epicsMap.get(epicId));
-            return epicsMap.get(epicId);
+            Epic epic = epicsMap.get(epicId);
+            historyManager.addTask(epic);
+            return epic;
         } else {
             return null;
         }
@@ -177,9 +177,9 @@ public class InMemoryTaskManager implements TaskManager{
     @Override
     public SubTask returnSubTaskById(long subTaskId) {
         if (!subTasksMap.isEmpty()) {
-            inMemoryHistoryManager.getHistory();
-            inMemoryHistoryManager.historyList.add(subTasksMap.get(subTaskId));
-            return subTasksMap.get(subTaskId);
+            SubTask subTask = subTasksMap.get(subTaskId);
+            historyManager.addTask(subTask);
+            return subTask;
         } else {
             return null;
         }
@@ -215,5 +215,10 @@ public class InMemoryTaskManager implements TaskManager{
         if (!subTasksMap.isEmpty()) {
             subTasksMap.remove(subTaskId);
         }
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
     }
 }

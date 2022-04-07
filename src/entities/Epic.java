@@ -7,19 +7,17 @@ import enums.Status;
 
 public class Epic extends Task {
 
-    protected List<SubTask> subTaskList = new ArrayList<>();
+    protected List<Long> subTaskList = new ArrayList<>();
 
-    public Epic(long id, String description, String name, Enum<Status> statusEnum, List<SubTask> newSubTaskList) {
-        super(id, description, name, statusEnum);
-
-        this.subTaskList = newSubTaskList;
+    public Epic(String description, String name, Enum<Status> statusEnum) {
+        super(description, name, statusEnum);
     }
 
-    public List<SubTask> getSubTaskList() {
+    public List<Long> getSubTaskList() {
         return subTaskList;
     }
 
-    public void setSubTaskList(List<SubTask> subTaskList) {
+    public void setSubTaskList(List<Long> subTaskList) {
         this.subTaskList = subTaskList;
     }
 }

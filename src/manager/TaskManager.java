@@ -3,18 +3,17 @@ package manager;
 import entities.Epic;
 import entities.SubTask;
 import entities.Task;
-import enums.Status;
 
 import java.util.List;
 
 public interface TaskManager {
 
     // Создаем объекты по типам
-    Task createTask(String description, String name, Enum<Status> statusEnum);
+    long createTask(Task task);
 
-    Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList);
+    long createEpic(Epic epic);
 
-    SubTask createSubTask(String description, String name, Enum<Status> statusEnum, long epicId);
+    long createSubTask(SubTask subTask);
 
     // Переводим статус объектов в "в процессе"
     void startTask(Task task);
@@ -36,11 +35,11 @@ public interface TaskManager {
     void updateEpicStatus(Epic epic);
 
     // Возвразаем все объекты по типам
-    Object returnAllTasks();
+    List<Task> returnAllTasks();
 
-    Object returnAllEpics();
+    List<Epic> returnAllEpics();
 
-    Object returnAllSubTasks();
+    List<SubTask> returnAllSubTasks();
 
     // Удаляем объекты
     void removeAllTasks();
@@ -56,7 +55,7 @@ public interface TaskManager {
 
     SubTask returnSubTaskById(long subTaskId);
 
-    List<SubTask> returnSubTasksForEpicById(long epicId);
+    List<Long> returnSubTasksForEpicById(long epicId);
 
     // Удаляем объекты по универсальному идентификатору
     void removeTaskById(long taskId);

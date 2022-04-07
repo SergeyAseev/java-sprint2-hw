@@ -14,8 +14,8 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    public SubTask(long id, String description, String name, Enum<Status> statusEnum, long newEpicId) {
-        super(id, description, name, statusEnum);
+    public SubTask(String description, String name, Enum<Status> statusEnum, long newEpicId) {
+        super(description, name, statusEnum);
         this.epicId = newEpicId;
     }
 

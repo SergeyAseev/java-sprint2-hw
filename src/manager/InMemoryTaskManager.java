@@ -5,13 +5,11 @@ import entities.SubTask;
 import entities.Task;
 import enums.Status;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    static long index = 0;
+    private static long index = 0;
     private Map<Long, Epic> epicsMap = new HashMap<>();
     private Map<Long, SubTask> subTasksMap = new HashMap<>();
     private Map<Long, Task> tasksMap = new HashMap<>();
@@ -27,27 +25,38 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public Task createTask(String description, String name, Enum<Status> statusEnum) {
-        long newIndex = increaseIntId();
-        Task task = new Task(newIndex, description, name, statusEnum);
-        tasksMap.put(newIndex, task);
-        return task;
+    public long createTask(Task task) {
+        long newTaskId = increaseIntId();
+        task.setId(newTaskId);
+        tasksMap.put(newTaskId, task);
+        return newTaskId;
     }
 
     @Override
-    public Epic createEpic(String description, String name, Enum<Status> statusEnum, List<SubTask> subTaskList) {
-        long newIndex = increaseIntId();
-        Epic epic = new Epic(newIndex, description, name, statusEnum, subTaskList);
-        epicsMap.put(newIndex, epic);
-        return epic;
+    public long createEpic(Epic epic) {
+        long newEpicId = increaseIntId();
+        epic.setId(newEpicId);
+        epicsMap.put(newEpicId, epic);
+        return newEpicId;
     }
 
     @Override
-    public SubTask createSubTask(String description, String name, Enum<Status> statusEnum, long epicId) {
-        long newIndex = increaseIntId();
-        SubTask subTask = new SubTask(newIndex, description, name, statusEnum, epicId);
-        subTasksMap.put(newIndex, subTask);
-        return subTask;
+    public long createSubTask(SubTask subTask) {
+
+        if (!epicsMap.containsKey(subTask.getEpicId())) {
+            return 0;
+        }
+
+        long newSubTaskId = increaseIntId();
+        subTask.setId(newSubTaskId);
+        subTasksMap.put(newSubTaskId, subTask);
+
+        long epicId = subTask.getEpicId();
+        Epic epic = epicsMap.get(epicId);
+        epic.getSubTaskList().add(newSubTaskId);
+
+        updateEpicStatus(epic);
+        return newSubTaskId;
     }
 
 
@@ -78,17 +87,34 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        tasksMap.put(task.getId(), task);
+        if (tasksMap.containsKey(task.getId())) {
+            tasksMap.put(task.getId(), task);
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
-        epicsMap.put(epic.getId(), epic);
+        if (epicsMap.containsKey(epic.getId())) {
+            epicsMap.put(epic.getId(), epic);
+        }
     }
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        subTasksMap.put(subTask.getId(), subTask);
+
+        if (Objects.isNull(subTask)) {
+            return;
+        }
+
+        long epicId = subTask.getEpicId();
+        if (!epicsMap.containsKey(epicId)) {
+            return;
+        }
+        if (subTasksMap.containsKey(subTask.getId())) {
+            subTasksMap.put(subTask.getId(), subTask);
+        }
+
+        updateEpicStatus(returnEpicById(epicId));
     }
 
     @Override
@@ -101,11 +127,11 @@ public class InMemoryTaskManager implements TaskManager {
 
         boolean doneStatus = epic.getSubTaskList()
                 .stream()
-                .allMatch(subTask -> subTask.getStatusEnum().equals(Status.DONE));
+                .allMatch(subTask -> returnSubTaskById(subTask).getStatusEnum().equals(Status.DONE));
 
         boolean newStatus = epic.getSubTaskList()
                 .stream()
-                .allMatch(subTask -> subTask.getStatusEnum().equals(Status.NEW));
+                .allMatch(subTask -> returnSubTaskById(subTask).getStatusEnum().equals(Status.NEW));
 
         if (doneStatus) {
             epic.setStatusEnum(Status.DONE);
@@ -117,18 +143,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Object returnAllTasks() {
-        return !tasksMap.isEmpty() ? tasksMap : null;
+    public List<Task> returnAllTasks() {
+        return !tasksMap.isEmpty() ? new ArrayList<>(tasksMap.values()) : new ArrayList<>();
     }
 
     @Override
-    public Object returnAllEpics() {
-        return !epicsMap.isEmpty() ? epicsMap : null;
+    public List<Epic> returnAllEpics() {
+        return !epicsMap.isEmpty() ? new ArrayList<>(epicsMap.values()) : new ArrayList<>();
     }
 
     @Override
-    public Object returnAllSubTasks() {
-        return !subTasksMap.isEmpty() ? subTasksMap : null;
+    public List<SubTask> returnAllSubTasks() {
+        return !subTasksMap.isEmpty() ? new ArrayList<>(subTasksMap.values()) : new ArrayList<>();
     }
 
     @Override
@@ -186,7 +212,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<SubTask> returnSubTasksForEpicById(long epicId) {
+    public List<Long> returnSubTasksForEpicById(long epicId) {
         if (!epicsMap.isEmpty()) {
             if (epicsMap.containsKey(epicId)) {
                 Epic epic = epicsMap.get(epicId);

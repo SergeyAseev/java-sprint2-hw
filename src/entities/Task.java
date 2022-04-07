@@ -12,8 +12,7 @@ public class Task {
 
     protected Enum<Status> statusEnum;
 
-    public Task(long id, String description, String name, Enum<Status> statusEnum) {
-        this.id = id;
+    public Task(String description, String name, Enum<Status> statusEnum) {
         this.description = description;
         this.name = name;
         this.statusEnum = statusEnum;

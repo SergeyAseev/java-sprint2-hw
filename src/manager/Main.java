@@ -1,13 +1,9 @@
 package manager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import entities.Epic;
-import enums.Status;
 import entities.SubTask;
 import entities.Task;
+import enums.Status;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,29 +11,35 @@ public class Main {
 
         TaskManager taskManager = Managers.getDefault();
 
-        Task task1 = taskManager.createTask("Тестовое описание 1", "Тест 1", Status.NEW);
-        Task task2 = taskManager.createTask("Тестовое описание 2", "Тест 2", Status.NEW);
+        Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW);
+        Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW);
+        long taskId1 = taskManager.createTask(task1);
+        long taskId2 = taskManager.createTask(task2);
 
-        SubTask subTask1 = taskManager.createSubTask("Тестовое описание 3", "Тест 3", Status.NEW, 4);
-        SubTask subTask2 = taskManager.createSubTask("Тестовое описание 4", "Тест 4", Status.NEW, 4);
+        Epic epic1 = new Epic("Тестовое описание epic1", "Test epic1", Status.NEW);
+        Epic epic2 = new Epic("Тестовое описание epic2", "Test epic1", Status.NEW);
+        long epicId1 = taskManager.createEpic(epic1);
+        long epicId2 = taskManager.createEpic(epic2);
 
-        List<SubTask> subTaskList = new ArrayList<>();
-        subTaskList.add(subTask1);
-        subTaskList.add(subTask2);
+        SubTask subTask1 = new SubTask("Тестовое описание subTask1", "Тест subTask1", Status.NEW, epicId1);
+        SubTask subTask2 = new SubTask("Тестовое описание subTask2", "Тест subTask2", Status.NEW, epicId2);
+        SubTask subTask3 = new SubTask("Тестовое описание subTask3", "Тест subTask3", Status.NEW, epicId2);
+        long subTaskId1 = taskManager.createSubTask(subTask1);
+        long subTaskId2 = taskManager.createSubTask(subTask2);
+        long subTaskId3 = taskManager.createSubTask(subTask3);
 
-        Epic epic1 = taskManager.createEpic("test", "test", Status.NEW, Collections.singletonList(subTask1));
-        Epic epic2 = taskManager.createEpic("test", "test", Status.NEW, subTaskList);
 
-        taskManager.returnTaskById(task1.getId());
-        taskManager.returnEpicById(epic1.getId());
-        taskManager.returnSubTaskById(subTask1.getId());
+        //блок для теста истории
+        taskManager.returnTaskById(taskId1);
+        taskManager.returnEpicById(epicId1);
+        taskManager.returnSubTaskById(subTaskId1);
 
         printForTest(taskManager);
-
     }
 
 
     public static void printForTest(TaskManager taskManager) {
+
         System.out.println("Все задачи:");
         System.out.println(taskManager.returnAllTasks());
         System.out.println("Все эпики:");

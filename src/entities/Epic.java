@@ -20,4 +20,9 @@ public class Epic extends Task {
     public void setSubTaskList(List<Long> subTaskList) {
         this.subTaskList = subTaskList;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

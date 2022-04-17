@@ -19,4 +19,9 @@ public class SubTask extends Task {
         this.epicId = newEpicId;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

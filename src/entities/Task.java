@@ -50,4 +50,8 @@ public class Task {
         this.statusEnum = statusEnum;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

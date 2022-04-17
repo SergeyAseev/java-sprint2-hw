@@ -1,6 +1,7 @@
 package manager;
 
 import entities.Epic;
+import entities.Node;
 import entities.SubTask;
 import entities.Task;
 import enums.Status;
@@ -55,7 +56,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epicsMap.get(epicId);
         epic.getSubTaskList().add(newSubTaskId);
 
-        updateEpicStatus(epic);
+        //updateEpicStatus(epic);
         return newSubTaskId;
     }
 
@@ -68,7 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void startSubTask(SubTask subTask) {
         subTask.setStatusEnum(Status.IN_PROGRESS);
-        Epic epic = returnEpicById(subTask.getEpicId());
+        Epic epic = getEpicById(subTask.getEpicId());
         updateEpicStatus(epic);
     }
 
@@ -80,7 +81,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void endSubTask(SubTask subTask) {
         subTask.setStatusEnum(Status.DONE);
-        Epic epic = returnEpicById(subTask.getEpicId());
+        Epic epic = getEpicById(subTask.getEpicId());
         updateEpicStatus(epic);
     }
 
@@ -114,7 +115,7 @@ public class InMemoryTaskManager implements TaskManager {
             subTasksMap.put(subTask.getId(), subTask);
         }
 
-        updateEpicStatus(returnEpicById(epicId));
+        updateEpicStatus(getEpicById(epicId));
     }
 
     @Override
@@ -127,11 +128,11 @@ public class InMemoryTaskManager implements TaskManager {
 
         boolean doneStatus = epic.getSubTaskList()
                 .stream()
-                .allMatch(subTask -> returnSubTaskById(subTask).getStatusEnum().equals(Status.DONE));
+                .allMatch(subTask -> getSubTaskById(subTask).getStatusEnum().equals(Status.DONE));
 
         boolean newStatus = epic.getSubTaskList()
                 .stream()
-                .allMatch(subTask -> returnSubTaskById(subTask).getStatusEnum().equals(Status.NEW));
+                .allMatch(subTask -> getSubTaskById(subTask).getStatusEnum().equals(Status.NEW));
 
         if (doneStatus) {
             epic.setStatusEnum(Status.DONE);
@@ -178,10 +179,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task returnTaskById(long taskId) {
+    public Task getTaskById(long taskId) {
         if (!tasksMap.isEmpty()) {
             Task task = tasksMap.get(taskId);
-            historyManager.addTask(task);
+            historyManager.addHistory(task);
             return task;
         } else {
             return null;
@@ -189,11 +190,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic returnEpicById(long epicId) {
+    public Epic getEpicById(long epicId) {
 
         if (!epicsMap.isEmpty()) {
             Epic epic = epicsMap.get(epicId);
-            historyManager.addTask(epic);
+            historyManager.addHistory(epic);
             return epic;
         } else {
             return null;
@@ -201,10 +202,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask returnSubTaskById(long subTaskId) {
+    public SubTask getSubTaskById(long subTaskId) {
         if (!subTasksMap.isEmpty()) {
             SubTask subTask = subTasksMap.get(subTaskId);
-            historyManager.addTask(subTask);
+            historyManager.addHistory(subTask);
             return subTask;
         } else {
             return null;
@@ -225,6 +226,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTaskById(long taskId) {
         if (!tasksMap.isEmpty()) {
+            historyManager.removeHistory(taskId);
             tasksMap.remove(taskId);
         }
     }
@@ -232,6 +234,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpicById(long epicId) {
         if (!epicsMap.isEmpty()) {
+            historyManager.removeHistory(epicId);
             epicsMap.remove(epicId);
         }
     }
@@ -239,6 +242,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeSubTaskById(long subTaskId) {
         if (!subTasksMap.isEmpty()) {
+            historyManager.removeHistory(subTaskId);
             subTasksMap.remove(subTaskId);
         }
     }

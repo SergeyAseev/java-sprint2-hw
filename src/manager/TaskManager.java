@@ -49,11 +49,11 @@ public interface TaskManager {
     void removeAllSubTasks();
 
     // Возвращаем объекты по уникальному идентификатору
-    Task returnTaskById(long taskId);
+    Task getTaskById(long taskId);
 
-    Epic returnEpicById(long epicId);
+    Epic getEpicById(long epicId);
 
-    SubTask returnSubTaskById(long subTaskId);
+    SubTask getSubTaskById(long subTaskId);
 
     List<Long> returnSubTasksForEpicById(long epicId);
 

@@ -25,22 +25,18 @@ public class Main {
         SubTask subTask2 = new SubTask("Тестовое описание subTask2", "Тест subTask2", Status.NEW, epicId2);
         SubTask subTask3 = new SubTask("Тестовое описание subTask3", "Тест subTask3", Status.NEW, epicId2);
         long subTaskId1 = taskManager.createSubTask(subTask1);
-        //long subTaskId2 = taskManager.createSubTask(subTask2);
-        //long subTaskId3 = taskManager.createSubTask(subTask3);
+        long subTaskId2 = taskManager.createSubTask(subTask2);
+        long subTaskId3 = taskManager.createSubTask(subTask3);
 
         //блок для теста истории
 
-
-        //System.out.println(taskManager.getHistory());
-        taskManager.getTaskById(taskId2);
-        //System.out.println(taskManager.getHistory());
-        taskManager.getEpicById(epicId1);
-        //System.out.println(taskManager.getHistory());
-        taskManager.getEpicById(epicId2);
-        //System.out.println(taskManager.getHistory());
-        //taskManager.removeTaskById(taskId1);
-        //taskManager.getTaskById(taskId1);
         taskManager.getTaskById(taskId1);
+        System.out.println(taskManager.getHistory());
+        taskManager.getTaskById(taskId2);
+        System.out.println(taskManager.getHistory());
+        taskManager.getEpicById(epicId1);
+        taskManager.getEpicById(epicId2);
+        taskManager.removeEpicById(epicId2); //todo исправить удаление хвоста
 
         printForTest(taskManager);
     }

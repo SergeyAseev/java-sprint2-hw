@@ -8,7 +8,7 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    public final int DEEP_OF_HISTORY = 10;
+    private final int DEEP_OF_HISTORY = 10;
     private final CustomLinkedList<Task> historyList = new CustomLinkedList<>();
     private final Map<Long, Node> nodeMap = new HashMap<>();
 

@@ -4,7 +4,7 @@ import enums.Status;
 
 public class SubTask extends Task {
 
-    protected long epicId;
+    private long epicId;
 
     public long getEpicId() {
         return epicId;

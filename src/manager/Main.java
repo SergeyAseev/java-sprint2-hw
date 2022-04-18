@@ -29,14 +29,12 @@ public class Main {
         long subTaskId3 = taskManager.createSubTask(subTask3);
 
         //блок для теста истории
-
         taskManager.getTaskById(taskId1);
-        System.out.println(taskManager.getHistory());
         taskManager.getTaskById(taskId2);
-        System.out.println(taskManager.getHistory());
         taskManager.getEpicById(epicId1);
         taskManager.getEpicById(epicId2);
-        taskManager.removeEpicById(epicId2); //todo исправить удаление хвоста
+        taskManager.getSubTaskById(subTaskId1);
+        taskManager.getSubTaskById(subTaskId2);
 
         printForTest(taskManager);
     }

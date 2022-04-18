@@ -233,6 +233,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpicById(long epicId) {
         if (!epicsMap.isEmpty()) {
+            List<Long> subTaskList = returnSubTasksForEpicById(epicId);
+            for (long subtaskId : subTaskList) {
+                removeSubTaskById(subtaskId);
+            }
             historyManager.removeHistory(epicId);
             epicsMap.remove(epicId);
         }

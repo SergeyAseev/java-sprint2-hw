@@ -10,11 +10,11 @@ import java.util.*;
 public class InMemoryTaskManager implements TaskManager {
 
     private static long index = 0;
-    private Map<Long, Epic> epics = new HashMap<>();
-    private Map<Long, SubTask> subTasks = new HashMap<>();
-    private Map<Long, Task> tasks = new HashMap<>();
+    protected Map<Long, Epic> epics = new HashMap<>();
+    protected Map<Long, SubTask> subTasks = new HashMap<>();
+    protected Map<Long, Task> tasks = new HashMap<>();
 
-    private HistoryManager historyManager = Managers.getDefaultHistory();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     /**
      * увеличивает уникальный идентификатор

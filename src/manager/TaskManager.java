@@ -34,7 +34,7 @@ public interface TaskManager {
 
     void updateEpicStatus(Epic epic);
 
-    // Возвразаем все объекты по типам
+    // Возвращаем все объекты по типам
     List<Task> returnAllTasks();
 
     List<Epic> returnAllEpics();

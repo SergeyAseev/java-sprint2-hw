@@ -6,7 +6,8 @@ public class SubTask extends Task {
 
     private long epicId;
 
-    public long getEpicId() {
+    @Override
+    public Long getEpicId() {
         return epicId;
     }
 

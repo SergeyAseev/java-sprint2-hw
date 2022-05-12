@@ -9,7 +9,8 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Пришло время практики!");
 
-        TaskManager taskManager = Managers.getDefault();
+        //TaskManager taskManager = Managers.getDefault();
+        FileBackedTasksManager taskManager = Managers.getDefault();
 
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW);
         Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW);

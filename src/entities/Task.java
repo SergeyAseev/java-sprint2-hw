@@ -54,4 +54,8 @@ public class Task {
     public String toString() {
         return name;
     }
+
+    public Long getEpicId() {
+        return null;
+    }
 }

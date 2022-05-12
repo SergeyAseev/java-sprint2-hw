@@ -34,37 +34,42 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public long createTask(Task task) {
         super.createTask(task);
         save();
-        return super.createTask(task);
+        return task.getId();
     }
 
     @Override
     public long createEpic(Epic epic) {
+        super.createEpic(epic);
         save();
-        return super.createEpic(epic);
+        return epic.getId();
     }
 
     @Override
     public long createSubTask(SubTask subTask) {
+        super.createSubTask(subTask);
         save();
-        return super.createSubTask(subTask);
+        return subTask.getId();
     }
 
     @Override
     public Task getTaskById(long taskId) {
+        super.getTaskById(taskId);
         save();
-        return super.getTaskById(taskId);
+        return tasks.get(taskId);
     }
 
     @Override
     public Epic getEpicById(long epicId) {
+        super.getEpicById(epicId);
         save();
-        return super.getEpicById(epicId);
+        return epics.get(epicId);
     }
 
     @Override
     public SubTask getSubTaskById(long subTaskId) {
+        super.getSubTaskById(subTaskId);
         save();
-        return super.getSubTaskById(subTaskId);
+        return subTasks.get(subTaskId);
     }
 
     @Override
@@ -76,94 +81,123 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     @Override
     public void updateEpic(Epic epic) {
         super.updateEpic(epic);
+        save();
+
     }
 
     @Override
     public void updateSubTask(SubTask subTask) {
         super.updateSubTask(subTask);
+        save();
     }
 
     @Override
     public void removeTaskById(long taskId) {
-        save();
         super.removeTaskById(taskId);
+        save();
     }
 
     @Override
     public void removeEpicById(long epicId) {
-        save();
         super.removeEpicById(epicId);
+        save();
     }
 
     @Override
     public void removeSubTaskById(long subTaskId) {
-        save();
         super.removeSubTaskById(subTaskId);
+        save();
     }
 
-    public String toString(Task task) {
-        return task.getId() /*+ task.gettype*/ + task.getName() + task.getStatusEnum() + task.getDescription() + task.getEpicId();
+    @Override
+    public void startTask(Task task) {
+        super.startTask(task);
+        save();
     }
 
-    //TODO а какой метод вызывать-то? createTask или запись в карту?
+    @Override
+    public void startSubTask(SubTask subTask) {
+        super.startSubTask(subTask);
+        save();
+    }
+
+    @Override
+    public void endTask(Task task) {
+        super.endTask(task);
+        save();
+    }
+
+    @Override
+    public void endSubTask(SubTask subTask) {
+        super.endSubTask(subTask);
+        save();
+    }
+
     //Метод создания задачи из строки
     private Task fromString(String value) {
 
         String[] taskData = value.split(",");
         TaskType taskType = TaskType.valueOf(taskData[1]);
         long taskId = Long.parseLong(taskData[0]);
-        String taskDescription = taskData[3];
+        String taskDescription = taskData[4];
         String taskName = taskData[2];
-        Status taskStatus = Status.valueOf(taskData[4]);
+        Status taskStatus = Status.valueOf(taskData[3]);
 
         switch (taskType) {
-            case TASK:
+            case Task:
                 Task task = new Task(taskDescription, taskName, taskStatus);
-                createTask(task);
+                task.setId(taskId);
                 tasks.put(taskId, task);
                 return task;
-            case EPIC:
+            case Epic:
                 Epic epic = new Epic(taskDescription, taskName, taskStatus);
-                createEpic(epic);
+                epic.setId(taskId);
                 epics.put(taskId, epic);
                 return epic;
-            case SUBTASK:
+            case SubTask:
                 long epicId = Long.parseLong(taskData[5]);
                 SubTask subTask = new SubTask(taskDescription, taskName, taskStatus, epicId);
-                createSubTask(subTask);
+                subTask.setId(taskId);
                 subTasks.put(taskId, subTask);
                 return subTask;
         }
         return null;
     }
 
+    //переводим задачи в строковую форму
+    public String toString(Task task) {
+        return task.getId() + "," + task.getClass().getSimpleName() + "," + task.getName() + "," + task.getStatusEnum() + ","
+                + task.getDescription() + "," + task.getEpicId();
+    }
+
     //Сохранение в файл
     private void save() {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<Long, Task> entry : tasks.entrySet()) {
-            //sb.append(entry.getValue().toString());
-            sb.append(toString(entry.getValue()));
-            sb.append("\\n");
-        }
-        for (Map.Entry<Long, Epic> entry : epics.entrySet()) {
-            sb.append(entry.getValue().toString());
-            sb.append("\\n");
-        }
-        for (Map.Entry<Long, SubTask> entry : subTasks.entrySet()) {
-            sb.append(entry.getValue().toString());
-            sb.append("\\n\\n");
-        }
-        historyToString(historyManager);
-        try {
-            new FileWriter(file).write(sb.toString());
+
+        try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.append("id,type,name,status,description,epic");
+            writer.newLine();
+            for (Map.Entry<Long, Task> entry : tasks.entrySet()) {
+                writer.append(toString(entry.getValue()));
+                writer.newLine();
+            }
+            for (Map.Entry<Long, Epic> entry : epics.entrySet()) {
+                writer.append(toString(entry.getValue()));
+                writer.newLine();
+            }
+            for (Map.Entry<Long, SubTask> entry : subTasks.entrySet()) {
+                writer.append(toString(entry.getValue()));
+                writer.newLine();
+            }
+            writer.newLine();
+            writer.append(historyToString(historyManager));
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при сохранении в файл");
+            throw new ManagerSaveException("Ошибка при сохранении в файл" + file.getName());
         }
     }
 
     //Восстановление из файла
     private void load() {
-        long maxId = 0;
+        long maxId = 0L;
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.readLine(); // Пропускаем заголовок
             while (true) {
@@ -173,54 +207,55 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
                 final Task task = fromString(line);
                 final long id = task.getId();
+
+                System.out.println();
+                if (task.getTaskType() == TaskType.Task) {
+                    tasks.put(id, task);
+				} else if (task.getTaskType() == TaskType.Epic) {
+                    epics.put(id, (Epic) task);
+                } else if (task.getTaskType() == TaskType.SubTask) {
+                    subTasks.put(id, (SubTask) task);
+                }
+
                 if (maxId < id) {
                     maxId = id;
                 }
-                System.out.println();
-/*                if (task.getТип() == TaskType.TASK) {
-                    tasks.put(id, task);
-				} else if (task.getТип() == TaskType.EPIC) {
-                    subTasks.put(id, (SubTask) task);
-                } else if (task.getType() == TaskType.SUBTASK) {
-                    epics.put(id, (Epic) task);
-                }*/
             }
 
             String line = reader.readLine();
-/*            List<Long> idhistory = historyFromString(line);
+            List<Long> idhistory = historyFromString(line);
             for (Long id : idhistory) {
                 if (tasks.containsKey(id)) {
-                    tasks.put()
-                } else if (subTasks.containsKey(id)) {
-                    subTasks.put();
+                    getTaskById(id);
                 } else if (epics.containsKey(id)) {
-                    epics.put();
+                    getEpicById(id);
+                } else if (subTasks.containsKey(id)) {
+                    getSubTaskById(id);
                 }
-            }*/
+            }
         } catch (IOException e) {
-            throw new ManagerSaveException("ошибка"); // TODO ManagerSaveException
+            throw new ManagerSaveException("Ошибка при восстановлении из файла" + file.getName());
         }
-        // генератор
-        //генераторИД = maxId;
-
     }
 
     //Сохранения менеджера истории в файл
     static String historyToString(HistoryManager historyManager) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (Task task : historyManager.getHistory()) {
-            stringBuilder.append(task.getId());
+        for (int i = 0; i < historyManager.getHistory().size(); i++) {
+            stringBuilder.append(historyManager.getHistory().get(i).getId());
+            if (i != historyManager.getHistory().size()-1) {
+                stringBuilder.append(",");
+            }
         }
         return stringBuilder.toString();
     }
 
     //Восстановление менеджера истории из файла
-    //TODO сохранять все таки ID и переписывать старое или убирать статик?
-    static List<Task> historyFromString(String value) {
+    static List<Long> historyFromString(String value) {
         String[] tasksId = value.split(",");
-        List<Task> historyList = new ArrayList<>();
+        List<Long> historyList = new ArrayList<>();
         for (String taskId : tasksId) {
-            //historyList.add();
+            historyList.add(Long.valueOf(taskId));
         }
         return historyList;
     }

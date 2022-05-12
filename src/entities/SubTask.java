@@ -1,6 +1,7 @@
 package entities;
 
 import enums.Status;
+import enums.TaskType;
 
 public class SubTask extends Task {
 
@@ -18,6 +19,12 @@ public class SubTask extends Task {
     public SubTask(String description, String name, Enum<Status> statusEnum, long newEpicId) {
         super(description, name, statusEnum);
         this.epicId = newEpicId;
+    }
+
+    @Override
+    public TaskType getTaskType() {
+        super.getTaskType();
+        return TaskType.SubTask;
     }
 
     @Override

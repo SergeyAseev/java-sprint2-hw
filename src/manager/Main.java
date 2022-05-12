@@ -5,12 +5,14 @@ import entities.SubTask;
 import entities.Task;
 import enums.Status;
 
+import java.io.File;
+
 public class Main {
     public static void main(String[] args) {
         System.out.println("Пришло время практики!");
 
         //TaskManager taskManager = Managers.getDefault();
-        FileBackedTasksManager taskManager = Managers.getDefault();
+        TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), true);
 
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW);
         Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW);
@@ -22,7 +24,7 @@ public class Main {
         long epicId1 = taskManager.createEpic(epic1);
         long epicId2 = taskManager.createEpic(epic2);
 
-        SubTask subTask1 = new SubTask("Тестовое описание subTask1", "Тест subTask1", Status.NEW, epicId2);
+        SubTask subTask1 = new SubTask("Тестовое описание subTask1", "Тест subTask1", Status.NEW, epicId1);
         SubTask subTask2 = new SubTask("Тестовое описание subTask2", "Тест subTask2", Status.NEW, epicId2);
         SubTask subTask3 = new SubTask("Тестовое описание subTask3", "Тест subTask3", Status.NEW, epicId2);
         long subTaskId1 = taskManager.createSubTask(subTask1);
@@ -30,25 +32,26 @@ public class Main {
         long subTaskId3 = taskManager.createSubTask(subTask3);
 
         //блок для теста истории
+        //TODO некорректно работает вызов истории для одной/двух записей
+        printForTest(taskManager);
         taskManager.getTaskById(taskId1);
         taskManager.getTaskById(taskId2);
         taskManager.getEpicById(epicId1);
         taskManager.getEpicById(epicId2);
         taskManager.getSubTaskById(subTaskId1);
         taskManager.getSubTaskById(subTaskId2);
-
         printForTest(taskManager);
     }
 
 
     public static void printForTest(TaskManager taskManager) {
 
-        System.out.println("Все задачи:");
+/*        System.out.println("Все задачи:");
         System.out.println(taskManager.returnAllTasks());
         System.out.println("Все эпики:");
         System.out.println(taskManager.returnAllEpics());
         System.out.println("Все подзадачи:");
-        System.out.println(taskManager.returnAllSubTasks());
+        System.out.println(taskManager.returnAllSubTasks());*/
         System.out.println("История вызовов:");
         System.out.println(taskManager.getHistory());
 

@@ -1,6 +1,7 @@
 package entities;
 
 import enums.Status;
+import enums.TaskType;
 
 public class Task {
 
@@ -48,6 +49,10 @@ public class Task {
 
     public void setStatusEnum(Enum<Status> statusEnum) {
         this.statusEnum = statusEnum;
+    }
+
+    public TaskType getTaskType() {
+        return TaskType.Task;
     }
 
     @Override

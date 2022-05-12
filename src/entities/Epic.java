@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import enums.Status;
+import enums.TaskType;
 
 public class Epic extends Task {
 
@@ -24,5 +25,11 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public TaskType getTaskType() {
+        super.getTaskType();
+        return TaskType.Epic;
     }
 }

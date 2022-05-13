@@ -147,18 +147,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             case Task:
                 Task task = new Task(taskDescription, taskName, taskStatus);
                 task.setId(taskId);
-                tasks.put(taskId, task);
                 return task;
             case Epic:
                 Epic epic = new Epic(taskDescription, taskName, taskStatus);
                 epic.setId(taskId);
-                epics.put(taskId, epic);
                 return epic;
             case SubTask:
                 long epicId = Long.parseLong(taskData[5]);
                 SubTask subTask = new SubTask(taskDescription, taskName, taskStatus, epicId);
                 subTask.setId(taskId);
-                subTasks.put(taskId, subTask);
                 return subTask;
         }
         return null;
@@ -197,7 +194,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     //Восстановление из файла
     private void load() {
-        long maxId = 0L;
+        long indexFromHistory = 0L;
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.readLine(); // Пропускаем заголовок
             while (true) {
@@ -206,25 +203,26 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     break;
                 }
                 final Task task = fromString(line);
-                final long id = task.getId();
+                final long tempId = task.getId();
 
                 System.out.println();
                 if (task.getTaskType() == TaskType.Task) {
-                    tasks.put(id, task);
-				} else if (task.getTaskType() == TaskType.Epic) {
-                    epics.put(id, (Epic) task);
+                    tasks.put(tempId, task);
+                } else if (task.getTaskType() == TaskType.Epic) {
+                    epics.put(tempId, (Epic) task);
                 } else if (task.getTaskType() == TaskType.SubTask) {
-                    subTasks.put(id, (SubTask) task);
+                    subTasks.put(tempId, (SubTask) task);
                 }
 
-                if (maxId < id) {
-                    maxId = id;
+                if (indexFromHistory < tempId) {
+                    indexFromHistory = tempId;
                 }
             }
+            index = indexFromHistory;
 
             String line = reader.readLine();
-            List<Long> idhistory = historyFromString(line);
-            for (Long id : idhistory) {
+            List<Long> listOfHistory = historyFromString(line);
+            for (Long id : listOfHistory) {
                 if (tasks.containsKey(id)) {
                     getTaskById(id);
                 } else if (epics.containsKey(id)) {
@@ -243,7 +241,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < historyManager.getHistory().size(); i++) {
             stringBuilder.append(historyManager.getHistory().get(i).getId());
-            if (i != historyManager.getHistory().size()-1) {
+            if (i != historyManager.getHistory().size() - 1) {
                 stringBuilder.append(",");
             }
         }

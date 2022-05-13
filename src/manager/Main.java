@@ -12,7 +12,7 @@ public class Main {
         System.out.println("Пришло время практики!");
 
         //TaskManager taskManager = Managers.getDefault();
-        TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), true);
+        TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
 
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW);
         Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW);
@@ -31,29 +31,32 @@ public class Main {
         long subTaskId2 = taskManager.createSubTask(subTask2);
         long subTaskId3 = taskManager.createSubTask(subTask3);
 
-        //блок для теста истории
-        //TODO некорректно работает вызов истории для одной/двух записей
-        printForTest(taskManager);
+        //блок для теста истории и записи в файл
         taskManager.getTaskById(taskId1);
         taskManager.getTaskById(taskId2);
         taskManager.getEpicById(epicId1);
         taskManager.getEpicById(epicId2);
         taskManager.getSubTaskById(subTaskId1);
         taskManager.getSubTaskById(subTaskId2);
+        //taskManager.endTask(task2);
+        //taskManager.endSubTask(subTask1);
+        //блок для теста записи в файл, чтения из файла, добавление новый задач после чтения из файла
+        //Task task11 = new Task("Тестовое описание task11", "Тест task11", Status.NEW);
+        //Task task22 = new Task("Тестовое описание task22", "Тест task22", Status.NEW);
+        //long taskId11 = taskManager.createTask(task11);
+        //long taskId22 = taskManager.createTask(task22);
         printForTest(taskManager);
     }
 
-
     public static void printForTest(TaskManager taskManager) {
 
-/*        System.out.println("Все задачи:");
+        System.out.println("Все задачи:");
         System.out.println(taskManager.returnAllTasks());
         System.out.println("Все эпики:");
         System.out.println(taskManager.returnAllEpics());
         System.out.println("Все подзадачи:");
-        System.out.println(taskManager.returnAllSubTasks());*/
+        System.out.println(taskManager.returnAllSubTasks());
         System.out.println("История вызовов:");
         System.out.println(taskManager.getHistory());
-
     }
 }

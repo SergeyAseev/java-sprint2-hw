@@ -9,7 +9,7 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private static long index = 0;
+    protected static long index = 0;
     protected Map<Long, Epic> epics = new HashMap<>();
     protected Map<Long, SubTask> subTasks = new HashMap<>();
     protected Map<Long, Task> tasks = new HashMap<>();

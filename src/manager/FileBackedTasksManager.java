@@ -163,7 +163,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     //переводим задачи в строковую форму
     public String toString(Task task) {
-        return task.getId() + "," + task.getClass().getSimpleName() + "," + task.getName() + "," + task.getStatusEnum() + ","
+        return task.getId() + "," + task.getTaskType() + "," + task.getName() + "," + task.getStatusEnum() + ","
                 + task.getDescription() + "," + task.getEpicId();
     }
 
@@ -205,7 +205,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 final Task task = fromString(line);
                 final long tempId = task.getId();
 
-                System.out.println();
                 if (task.getTaskType() == TaskType.Task) {
                     tasks.put(tempId, task);
                 } else if (task.getTaskType() == TaskType.Epic) {
@@ -237,11 +236,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Сохранения менеджера истории в файл
-    static String historyToString(HistoryManager historyManager) {
+    private static String historyToString(HistoryManager historyManager) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < historyManager.getHistory().size(); i++) {
-            stringBuilder.append(historyManager.getHistory().get(i).getId());
-            if (i != historyManager.getHistory().size() - 1) {
+        List<Task> historyList = historyManager.getHistory();
+        for (int i = 0; i < historyList.size(); i++) {
+            stringBuilder.append(historyList.get(i).getId());
+            if (i != historyList.size() - 1) {
                 stringBuilder.append(",");
             }
         }

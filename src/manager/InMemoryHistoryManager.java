@@ -94,11 +94,8 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (Objects.isNull(node)) {
                 return arrayListHistory;
             }
-            while (true) {
+            while (node.next != null) {
                 arrayListHistory.add((Task) node.data);
-                if (node.next == null) {
-                    break;
-                }
                 node = node.next;
             }
 

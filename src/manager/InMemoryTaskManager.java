@@ -9,17 +9,17 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    protected static long index = 0;
-    protected Map<Long, Epic> epics = new HashMap<>();
-    protected Map<Long, SubTask> subTasks = new HashMap<>();
-    protected Map<Long, Task> tasks = new HashMap<>();
+    protected static long index = 0; // final нельзя, так как при чтении из файла мы присваиваем новый максимальный id
+    protected final Map<Long, Epic> epics = new HashMap<>();
+    protected final Map<Long, SubTask> subTasks = new HashMap<>();
+    protected final Map<Long, Task> tasks = new HashMap<>();
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     /**
      * увеличивает уникальный идентификатор
      */
-    public Long increaseId() {
+    public long increaseId() {
         return index++;
     }
 
@@ -200,13 +200,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Long> returnSubTasksForEpicById(long epicId) {
-        if (!epics.isEmpty()) {
-            if (epics.containsKey(epicId)) {
-                Epic epic = epics.get(epicId);
-                return epic.getSubTaskList();
-            }
+
+        if (epics.containsKey(epicId)) {
+            Epic epic = epics.get(epicId);
+            return epic.getSubTaskList();
+        } else {
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
     }
 
     @Override
@@ -222,9 +222,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpicById(long epicId) {
         Epic epic = epics.get(epicId);
         if (epic != null) {
-            for (Long aLong : epic.getSubTaskList()) {
-                subTasks.remove(aLong);
-                historyManager.removeHistory(aLong);
+            for (Long currentId : epic.getSubTaskList()) {
+                subTasks.remove(currentId);
+                historyManager.removeHistory(currentId);
             }
             historyManager.removeHistory(epicId);
             epics.remove(epicId);

@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Пришло время практики!");
 
-        //TaskManager taskManager = Managers.getDefault();
+        //TaskManager taskManager = Managers.getDefault()
         TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
 
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW);

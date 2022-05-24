@@ -12,7 +12,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected static long index = 0; // final нельзя, так как при чтении из файла мы присваиваем новый максимальный id
     protected final Map<Long, Epic> epics = new HashMap<>();
     protected final Map<Long, SubTask> subTasks = new HashMap<>();
-    protected final Map<Long, Task> tasks = new HashMap<>();
+    public final Map<Long, Task> tasks = new HashMap<>();
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 

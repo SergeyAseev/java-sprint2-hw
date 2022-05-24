@@ -1,5 +1,6 @@
 package entities;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,10 @@ public class Epic extends Task {
 
     public Epic(String description, String name, Enum<Status> statusEnum) {
         super(description, name, statusEnum);
+    }
+
+    public Epic(String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
+        super(description, name, statusEnum, startTime, duration);
     }
 
     public List<Long> getSubTaskList() {

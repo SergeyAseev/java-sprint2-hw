@@ -3,6 +3,8 @@ package entities;
 import enums.Status;
 import enums.TaskType;
 
+import java.time.LocalDateTime;
+
 public class Task {
 
     protected Long id;
@@ -12,6 +14,20 @@ public class Task {
     protected String name;
 
     protected Enum<Status> statusEnum;
+
+    protected LocalDateTime startTime;
+
+    protected int duration;
+
+    public Task(String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
+        this.description = description;
+        this.name = name;
+        this.statusEnum = statusEnum;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
+
+    protected LocalDateTime endTime;
 
     public Task(String description, String name, Enum<Status> statusEnum) {
         this.description = description;
@@ -62,5 +78,29 @@ public class Task {
 
     public Long getEpicId() {
         return null;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 }

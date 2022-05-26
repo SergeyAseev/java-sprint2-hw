@@ -17,6 +17,8 @@ public class Task {
 
     protected LocalDateTime startTime;
 
+    protected LocalDateTime endTime;
+
     protected int duration;
 
     public Task(String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
@@ -26,8 +28,6 @@ public class Task {
         this.startTime = startTime;
         this.duration = duration;
     }
-
-    protected LocalDateTime endTime;
 
     public Task(String description, String name, Enum<Status> statusEnum) {
         this.description = description;

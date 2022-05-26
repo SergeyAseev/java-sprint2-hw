@@ -19,7 +19,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             return;
         }
 
-        long currentTaskId = task.getId(); //ПОМНИ, ЧТО ЭТО НЕ ТОЛЬКО TASK!!!
+        long currentTaskId = task.getId();
         if (nodeMap.containsKey(currentTaskId)) {
             removeHistory(currentTaskId);
         }

@@ -250,4 +250,14 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
+
+    @Override
+    public void calculateEpicTime(Epic epic) {
+
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return null;
+    }
 }

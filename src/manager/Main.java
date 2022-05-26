@@ -38,13 +38,6 @@ public class Main {
         taskManager.getEpicById(epicId2);
         taskManager.getSubTaskById(subTaskId1);
         taskManager.getSubTaskById(subTaskId2);
-        //taskManager.endTask(task2);
-        //taskManager.endSubTask(subTask1);
-        //блок для теста записи в файл, чтения из файла, добавление новый задач после чтения из файла
-        //Task task11 = new Task("Тестовое описание task11", "Тест task11", Status.NEW);
-        //Task task22 = new Task("Тестовое описание task22", "Тест task22", Status.NEW);
-        //long taskId11 = taskManager.createTask(task11);
-        //long taskId22 = taskManager.createTask(task22);
         printForTest(taskManager);
     }
 

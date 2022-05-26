@@ -11,6 +11,8 @@ public class Epic extends Task {
 
     private List<Long> subTaskList = new ArrayList<>();
 
+    private LocalDateTime epicEndTime;
+
     public Epic(String description, String name, Enum<Status> statusEnum) {
         super(description, name, statusEnum);
     }

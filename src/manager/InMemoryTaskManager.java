@@ -5,6 +5,7 @@ import entities.SubTask;
 import entities.Task;
 import enums.Status;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -12,7 +13,9 @@ public class InMemoryTaskManager implements TaskManager {
     protected static long index = 0; // final нельзя, так как при чтении из файла мы присваиваем новый максимальный id
     protected final Map<Long, Epic> epics = new HashMap<>();
     protected final Map<Long, SubTask> subTasks = new HashMap<>();
-    public final Map<Long, Task> tasks = new HashMap<>();
+    protected final Map<Long, Task> tasks = new HashMap<>();
+
+    protected TreeSet treeSet = new TreeSet<>();
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
@@ -23,11 +26,16 @@ public class InMemoryTaskManager implements TaskManager {
         return index++;
     }
 
-
     @Override
     public long createTask(Task task) {
+        //сортировка + проверка пересечения времен
+        //checkCrossForTasks(task);
         long newTaskId = increaseId();
         task.setId(newTaskId);
+        if (task.getStartTime() != null) {
+            task.setEndTime(task.getStartTime().plusMinutes(task.getDuration()));
+        }
+
         tasks.put(newTaskId, task);
         return newTaskId;
     }
@@ -36,24 +44,28 @@ public class InMemoryTaskManager implements TaskManager {
     public long createEpic(Epic epic) {
         long newEpicId = increaseId();
         epic.setId(newEpicId);
+        calculateEpicTime(epic);
         epics.put(newEpicId, epic);
         return newEpicId;
     }
 
     @Override
     public long createSubTask(SubTask subTask) {
-
+        //сортировка + проверка пересечения времен
+       // checkCrossForTasks(subTask);
         if (!epics.containsKey(subTask.getEpicId())) {
             return 0;
         }
 
         long newSubTaskId = increaseId();
         subTask.setId(newSubTaskId);
+        subTask.setEndTime(subTask.getStartTime().plusMinutes(subTask.getDuration()));
         subTasks.put(newSubTaskId, subTask);
 
         long epicId = subTask.getEpicId();
         Epic epic = epics.get(epicId);
         epic.getSubTaskList().add(newSubTaskId);
+        calculateEpicTime(epic);
 
         updateEpicStatus(epic);
         return newSubTaskId;
@@ -254,10 +266,49 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void calculateEpicTime(Epic epic) {
 
+        List<Long> subTaskList = epic.getSubTaskList();
+
+        List<LocalDateTime> startTimes = new ArrayList<>();
+        List<LocalDateTime> endTimes = new ArrayList<>();
+        int subTaskDuration = 0;
+        for (long subTaskId : subTaskList) {
+            SubTask subTask = getSubTaskById(subTaskId);
+
+            startTimes.add(subTask.getStartTime());
+            endTimes.add(subTask.getEndTime());
+            subTaskDuration += subTask.getDuration();
+        }
+
+        Comparator<LocalDateTime> localDateTimeComparator = LocalDateTime::compareTo;
+
+        epic.setStartTime(startTimes.stream().min(localDateTimeComparator).orElse(null));
+        epic.setEndTime(endTimes.stream().max(localDateTimeComparator).orElse(null));
+        epic.setDuration(subTaskDuration);
+
     }
 
     @Override
-    public List<Task> getPrioritizedTasks() {
-        return null;
+    public TreeSet getPrioritizedTasks() {
+
+        List<Task> taskList = returnAllTasks();
+        List<SubTask> subTaskList = returnAllSubTasks();
+        treeSet= new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)));
+
+        treeSet.addAll(taskList);
+        treeSet.addAll(subTaskList);
+
+        return treeSet;
+    }
+
+    public void checkCrossForTasks(Task task) {
+
+        TreeSet<Task> tempTreeSet = getPrioritizedTasks();
+
+        for (Task tempTask : tempTreeSet) {
+            if (task.getStartTime().isBefore(tempTask.getStartTime().plusMinutes(tempTask.getDuration()))) {
+                throw new RuntimeException("Пересечение задач не допускается!" + tempTask.getName());
+            }
+        }
+
     }
 }

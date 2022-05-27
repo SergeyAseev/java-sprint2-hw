@@ -3,6 +3,7 @@ package entities;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import enums.Status;
 import enums.TaskType;
@@ -38,5 +39,14 @@ public class Epic extends Task {
     public TaskType getTaskType() {
         super.getTaskType();
         return TaskType.Epic;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(subTaskList, epic.getSubTaskList());
     }
 }

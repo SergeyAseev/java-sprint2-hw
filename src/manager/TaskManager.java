@@ -5,6 +5,8 @@ import entities.SubTask;
 import entities.Task;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public interface TaskManager {
 
@@ -69,5 +71,6 @@ public interface TaskManager {
 
     void calculateEpicTime(Epic epic);
 
-    List<Task> getPrioritizedTasks();
+    TreeSet getPrioritizedTasks();
+
 }

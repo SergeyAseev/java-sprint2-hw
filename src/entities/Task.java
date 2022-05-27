@@ -4,6 +4,7 @@ import enums.Status;
 import enums.TaskType;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Task {
 
@@ -102,5 +103,25 @@ public class Task {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Task)) return false;
+        Task task = (Task) o;
+        return id == task.id
+                && Objects.equals(duration, task.duration)
+                && Objects.equals(description, task.description)
+                && Objects.equals(name, task.name)
+                && Objects.equals(statusEnum, task.statusEnum)
+                && Objects.equals(startTime, task.startTime)
+                && Objects.equals(endTime, task.endTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description, name, statusEnum, startTime, endTime, duration);
     }
 }

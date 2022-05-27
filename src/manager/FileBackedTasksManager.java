@@ -164,14 +164,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     //переводим задачи в строковую форму
     public String toString(Task task) {
         return task.getId() + "," + task.getTaskType() + "," + task.getName() + "," + task.getStatusEnum() + ","
-                + task.getDescription() + "," + task.getEpicId();
+                + task.getDescription() + "," + task.getEpicId() + ","
+                + task.getStartTime() + "," + task.getDuration();
     }
 
     //Сохранение в файл
     private void save() {
 
         try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.append("id,type,name,status,description,epic");
+            writer.append("id,type,name,status,description,epic,startTime,duration");
             writer.newLine();
             for (Map.Entry<Long, Task> entry : tasks.entrySet()) {
                 writer.append(toString(entry.getValue()));

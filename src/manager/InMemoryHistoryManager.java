@@ -8,7 +8,6 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final int DEEP_OF_HISTORY = 10;
     private final CustomLinkedList<Task> historyList = new CustomLinkedList<>();
     private final Map<Long, Node> nodeMap = new HashMap<>();
 
@@ -25,11 +24,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
 
         nodeMap.put(task.getId(), historyList.linkLast(task));
-
-        if (historyList.size > DEEP_OF_HISTORY) {
-            removeHistory(historyList.head.data.getId());
-        }
-
     }
 
     @Override

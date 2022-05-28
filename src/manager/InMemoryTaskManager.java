@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Long, SubTask> subTasks = new HashMap<>();
     protected final Map<Long, Task> tasks = new HashMap<>();
 
-    protected TreeSet treeSet = new TreeSet<>();
+    protected Set treeSet = new TreeSet<>();
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
@@ -29,15 +29,19 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public long createTask(Task task) {
         //сортировка + проверка пересечения времен
-        //checkCrossForTasks(task);
+        checkCrossForTasks(task);
         long newTaskId = increaseId();
         task.setId(newTaskId);
+
         if (task.getStartTime() != null) {
+            task.setEndTime(task.getStartTime().plusMinutes(task.getDuration()));
+        } else {
+            task.setStartTime(LocalDateTime.now());
             task.setEndTime(task.getStartTime().plusMinutes(task.getDuration()));
         }
 
         tasks.put(newTaskId, task);
-        //treeSet.put
+        treeSet.add(task);
         return newTaskId;
     }
 
@@ -52,16 +56,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public long createSubTask(SubTask subTask) {
-        //сортировка + проверка пересечения времен
-       // checkCrossForTasks(subTask);
+        checkCrossForTasks(subTask);
         if (!epics.containsKey(subTask.getEpicId())) {
             return 0;
         }
 
         long newSubTaskId = increaseId();
         subTask.setId(newSubTaskId);
-        subTask.setEndTime(subTask.getStartTime().plusMinutes(subTask.getDuration()));
+
+        if (subTask.getStartTime() != null) {
+            subTask.setEndTime(subTask.getStartTime().plusMinutes(subTask.getDuration()));
+        } else {
+            subTask.setStartTime(LocalDateTime.now());
+            subTask.setEndTime(subTask.getStartTime().plusMinutes(subTask.getDuration()));
+        }
         subTasks.put(newSubTaskId, subTask);
+        treeSet.add(subTask);
 
         long epicId = subTask.getEpicId();
         Epic epic = epics.get(epicId);
@@ -289,7 +299,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public TreeSet getPrioritizedTasks() {
+    public Set getPrioritizedTasks() {
 
         List<Task> taskList = returnAllTasks();
         List<SubTask> subTaskList = returnAllSubTasks();
@@ -303,10 +313,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void checkCrossForTasks(Task task) {
 
-        TreeSet<Task> tempTreeSet = getPrioritizedTasks();
+        Set<Task> tempTreeSet = getPrioritizedTasks();
+
+        LocalDateTime timeStartTime = task.getStartTime();
+        LocalDateTime timeEndTime = task.getStartTime().plusMinutes(task.getDuration());
 
         for (Task tempTask : tempTreeSet) {
-            if (task.getStartTime().isBefore(tempTask.getStartTime().plusMinutes(tempTask.getDuration()))) {
+            if ((timeStartTime.isAfter(tempTask.getStartTime()) && timeStartTime.isBefore(tempTask.getEndTime())) ||
+                    (timeEndTime.isAfter(tempTask.getStartTime()) && timeStartTime.isBefore(tempTask.getEndTime())) ){
                 throw new RuntimeException("Пересечение задач не допускается!" + tempTask.getName());
             }
         }

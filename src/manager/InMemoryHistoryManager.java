@@ -35,8 +35,32 @@ public class InMemoryHistoryManager implements HistoryManager {
     public void removeHistory(long id) {
 
         Node currentNode = nodeMap.get(id);
+        //начало
+        if (currentNode == historyList.head) {
+            if (currentNode ==historyList.tail) {
+                historyList.head = null;
+                historyList.tail = null;
+                return;
+            }
+            final Node<Task> newFirst = historyList.head;
+            newFirst.prev = null;
+            historyList.head = newFirst;
+            return;
+        }
+        //конец
+        if (currentNode == historyList.tail) {
+            historyList.tail = currentNode.prev;
+            currentNode.next = null;
+            return;
+        }
+        //середина
+        final Node<Task> prev = currentNode.prev;
+        final Node<Task> next = currentNode.next;
+        prev.next = next;
+        next.prev = prev;
+        historyList.removeNode(currentNode);
 
-        if (Objects.isNull(currentNode)) {
+/*        if (Objects.isNull(currentNode)) {
             return;
         }
 
@@ -51,7 +75,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             oldPrev.next = oldNext;
             oldNext.prev = oldPrev;
         }
-        historyList.removeNode(currentNode);
+        historyList.removeNode(currentNode);*/
     }
 
 

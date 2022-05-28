@@ -375,7 +375,7 @@ abstract class ManagerTest<T extends TaskManager> {
             }
         }
 
-        assertEquals(taskWithMinTime, taskManager.getPrioritizedTasks().first(), "Неправильная сортировка по " +
+        assertEquals(taskWithMinTime, taskManager.getPrioritizedTasks().stream().findFirst().get(), "Неправильная сортировка по " +
                 "времени возрастанию: неверный самый первый элемент");
     }
 

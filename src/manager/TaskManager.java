@@ -71,6 +71,6 @@ public interface TaskManager {
 
     void calculateEpicTime(Epic epic);
 
-    TreeSet getPrioritizedTasks();
+    Set getPrioritizedTasks();
 
 }

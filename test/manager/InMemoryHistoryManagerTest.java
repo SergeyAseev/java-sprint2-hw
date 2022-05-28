@@ -29,10 +29,12 @@ class InMemoryHistoryManagerTest{
                 LocalDateTime.of(2022, 4,1,0,0), 15);
         Task task22 = new Task(12,"Тестовое описание task2", "Тест task22", Status.NEW,
                 LocalDateTime.of(2022, 4,2,0,0), 15);
+        Task task33 = new Task(13,"Тестовое описание task2", "Тест task22", Status.NEW,
+                LocalDateTime.of(2022, 4,2,0,0), 15);
 
         historyManager.addHistory(task11);
         historyManager.addHistory(task22);
-        historyManager.addHistory(task22);
+        historyManager.addHistory(task33);
         System.out.println(historyManager.getHistory());
 
         //TODO не работает правильно добавление элемента в конец. Может не только в конец

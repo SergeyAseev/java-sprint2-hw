@@ -1,123 +1,107 @@
 package manager;
 
-import entities.Node;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import entities.Task;
 
-import java.util.*;
-
-
 public class InMemoryHistoryManager implements HistoryManager {
+    HashMap<Long, Node<Task>> history = new HashMap<>();
+    private Node<Task> head;
+    private Node<Task> tail;
 
-    private final CustomLinkedList<Task> historyList = new CustomLinkedList<>();
-    private final Map<Long, Node> nodeMap = new HashMap<>();
+    private static class Node<E> {
+        E data;
+        Node<E> next;
+        Node<E> prev;
 
-
-    @Override
-    public void addHistory(Task task) {
-        if (Objects.isNull(task)) {
-            return;
+        Node(Node<E> prev, E data, Node<E> next) {
+            this.data = data;
+            this.next = next;
+            this.prev = prev;
         }
-
-        long currentTaskId = task.getId();
-        if (nodeMap.containsKey(currentTaskId)) {
-            removeHistory(currentTaskId);
-        }
-
-        nodeMap.put(task.getId(), historyList.linkLast(task));
     }
 
     @Override
     public List<Task> getHistory() {
-        return historyList.getTasks();
+        return getTasks();
     }
 
+    /**
+     * Добавление просмотренных задач в список "История задач":
+     * удаление задачи из списка,если она там есть,
+     * а затем добавление её в конец двусвязного списка.
+     */
     @Override
-    public void removeHistory(long id) {
-
-        Node currentNode = nodeMap.get(id);
-        //начало
-        if (currentNode == historyList.head) {
-            if (currentNode ==historyList.tail) {
-                historyList.head = null;
-                historyList.tail = null;
-                return;
-            }
-            final Node<Task> newFirst = historyList.head;
-            newFirst.prev = null;
-            historyList.head = newFirst;
-            return;
+    public void addHistory(Task task) {
+        final Node<Task> node = history.get(task.getId());
+        if (node != null) {
+            removeNode(node);
         }
-        //конец
-        if (currentNode == historyList.tail) {
-            historyList.tail = currentNode.prev;
-            currentNode.next = null;
-            return;
-        }
-        //середина
-        final Node<Task> prev = currentNode.prev;
-        final Node<Task> next = currentNode.next;
-        prev.next = next;
-        next.prev = prev;
-        historyList.removeNode(currentNode);
-
-/*        if (Objects.isNull(currentNode)) {
-            return;
-        }
-
-        if (currentNode.prev == null) {
-            historyList.head = historyList.head.next;
-        } else if (currentNode.next == null) {
-            Node oldPrev = currentNode.prev;
-            oldPrev.next = null;
-        } else {
-            Node oldPrev = currentNode.prev;
-            Node oldNext = currentNode.next;
-            oldPrev.next = oldNext;
-            oldNext.prev = oldPrev;
-        }
-        historyList.removeNode(currentNode);*/
+        linkLast(task);
     }
 
-
-    private class CustomLinkedList<T> {
-
-        private Node<T> head;
-        private Node<T> tail;
-        private int size = 0;
-
-        //Добавляем задачу в конец списка
-        private Node linkLast(T element) {
-            final Node<T> oldTail = tail;
-            final Node<T> newNode = new Node<T>(element, oldTail, null);
-            tail = newNode;
-
-            if (oldTail == null)
-                head = newNode;
-            else
-                oldTail.next = newNode;
-            size++;
-
-            return newNode;
+    /**
+     * Удаление задачи из просмотра.
+     */
+    @Override
+    public void removeHistory(Task task) {
+        final Node<Task> node = history.remove(task.getId());
+        if (node != null) {
+            removeNode(node);
         }
+    }
 
-        void removeNode(Node node) {
-            nodeMap.values().remove(node);
+    /**
+     * Удаление Node — узла связного списка.
+     */
+    public void removeNode(Node node) {
+        if (node == null) {
+            return;
         }
+        final Node next = node.next;
+        final Node prev = node.prev;
 
-        //Собираем все задачи из связанного кастомного в обычный список
-        public List<Task> getTasks() {
-            final List<Task> arrayListHistory = new ArrayList<>();
-
-            Node node = head;
-            if (Objects.isNull(node)) {
-                return arrayListHistory;
-            }
-            while (node.next != null) {
-                arrayListHistory.add((Task) node.data);
-                node = node.next;
-            }
-
-            return arrayListHistory;
+        if (prev == null) {
+            head = next;
+        } else {
+            prev.next = next;
+            node.prev = null;
         }
+        if (next == null) {
+            tail = prev;
+        } else {
+            next.prev = prev;
+            node.next = null;
+        }
+    }
+
+    /**
+     * Добавление задач в конец списка.
+     */
+    public void linkLast(Task task) {
+        final Node<Task> oldTail = tail;
+        final Node<Task> newNode = new Node<>(oldTail, task, null);
+        tail = newNode;
+        if (oldTail == null) {
+            head = newNode;
+        } else {
+            oldTail.next = newNode;
+        }
+        history.put(newNode.data.getId(), newNode);
+    }
+
+    /**
+     * Реализация метода должна перекладывать задачи
+     * из связного списка в ArrayList для формирования ответа.
+     */
+    public List<Task> getTasks() {
+        final List<Task> newHistory = new ArrayList<>();
+        Node<Task> node = head;
+        while (node != null) {
+            newHistory.add(node.data);
+            node = node.next;
+        }
+        return newHistory;
     }
 }

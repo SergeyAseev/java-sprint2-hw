@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryHistoryManagerTest{
+class InMemoryHistoryManagerTest {
 
     private InMemoryHistoryManager historyManager;
 
@@ -17,6 +17,7 @@ class InMemoryHistoryManagerTest{
     void initInMemoryHistoryTaskManager() {
         historyManager = new InMemoryHistoryManager();
     }
+
     @Test
     void emptyHistoryTest() {
         assertEquals(0, historyManager.getHistory().size(), "История должна быть пустой");
@@ -25,63 +26,72 @@ class InMemoryHistoryManagerTest{
     @Test
     void tryToMakeDoubleInHistoryTest() {
 
-        Task task11 = new Task(11,"Тестовое описание task1", "Тест task11", Status.NEW,
-                LocalDateTime.of(2022, 4,1,0,0), 15);
-        Task task22 = new Task(12,"Тестовое описание task2", "Тест task22", Status.NEW,
-                LocalDateTime.of(2022, 4,2,0,0), 15);
-        Task task33 = new Task(13,"Тестовое описание task2", "Тест task22", Status.NEW,
-                LocalDateTime.of(2022, 4,2,0,0), 15);
+        Task task11 = new Task(11, "Тестовое описание task1", "Тест task11", Status.NEW,
+                LocalDateTime.of(2022, 4, 1, 0, 0), 15);
+        Task task22 = new Task(12, "Тестовое описание task2", "Тест task22", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
 
         historyManager.addHistory(task11);
         historyManager.addHistory(task22);
-        historyManager.addHistory(task33);
-        System.out.println(historyManager.getHistory());
+        historyManager.addHistory(task22);
 
-        //TODO не работает правильно добавление элемента в конец. Может не только в конец
         assertEquals(2, historyManager.getHistory().size(), "Был добавлен дубль в историю");
     }
 
     @Test
     void removeFromHistoryTest() {
 
-/*        Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW, LocalDateTime.now(), 15);
-        Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW, LocalDateTime.now(), 15);
-        Task task3 = new Task("Тестовое описание task3", "Тест task3", Status.NEW, LocalDateTime.now(), 15);
-        Task task4 = new Task("Тестовое описание task4", "Тест task4", Status.NEW, LocalDateTime.now(), 15);
-        long taskId1 = taskManager.createTask(task1);
-        long taskId2 = taskManager.createTask(task2);
-        long taskId3 = taskManager.createTask(task3);
-        long taskId4 = taskManager.createTask(task4);
+        Task task11 = new Task(11, "Тестовое описание task1", "Тест task11", Status.NEW,
+                LocalDateTime.of(2022, 4, 1, 0, 0), 15);
+        Task task22 = new Task(12, "Тестовое описание task2", "Тест task22", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
+        Task task33 = new Task(13, "Тестовое описание task3", "Тест task33", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
 
-        assertEquals(0, taskManager.getHistory().size(), "История должна быть пустой");
-        taskManager.getTaskById(taskId1);
-        taskManager.getTaskById(taskId2);
-        taskManager.getTaskById(taskId3);
-        taskManager.getTaskById(taskId4);
-        System.out.println(taskManager.getHistory());
+        historyManager.addHistory(task11);
+        historyManager.addHistory(task22);
+        historyManager.addHistory(task33);
+        historyManager.removeHistory(task22);
 
-        assertEquals(4, taskManager.getHistory().size(), "История должна быть не пустой");*/
+        assertEquals(2, historyManager.getHistory().size(), "Неправильное удаление из середины истории");
     }
 
     @Test
     void removeFirstTaskInHistoryTest() {
 
-/*        Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW, LocalDateTime.now(), 15);
-        Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW, LocalDateTime.now(), 15);
-        Task task3 = new Task("Тестовое описание task3", "Тест task3", Status.NEW, LocalDateTime.now(), 15);
-        long taskId1 = taskManager.createTask(task1);
-        long taskId2 = taskManager.createTask(task2);
-        long taskId3 = taskManager.createTask(task3);
+        Task task11 = new Task(11, "Тестовое описание task1", "Тест task11", Status.NEW,
+                LocalDateTime.of(2022, 4, 1, 0, 0), 15);
+        Task task22 = new Task(12, "Тестовое описание task2", "Тест task22", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
+        Task task33 = new Task(13, "Тестовое описание task3", "Тест task33", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
 
-        taskManager.getTaskById(taskId1);
-        taskManager.getTaskById(taskId2);
-        taskManager.getTaskById(taskId3);
+        historyManager.addHistory(task11);
+        historyManager.addHistory(task22);
+        historyManager.addHistory(task33);
+        historyManager.removeHistory(task11);
 
-        taskManager.removeTaskById(taskId1);
+        assertEquals(2, historyManager.getHistory().size(), "Неправильное удаление первого элемента" +
+                " истории");
+    }
 
-        System.out.println(taskManager.getHistory());
-        //assertEquals(taskManager.getHistory(), task2, "");
-        assertEquals(2, taskManager.getHistory().size(), "История должна состоять из двух задач");*/
+    @Test
+    void removeLastTaskInHistoryTest() {
+
+        Task task11 = new Task(11, "Тестовое описание task1", "Тест task11", Status.NEW,
+                LocalDateTime.of(2022, 4, 1, 0, 0), 15);
+        Task task22 = new Task(12, "Тестовое описание task2", "Тест task22", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
+        Task task33 = new Task(13, "Тестовое описание task3", "Тест task33", Status.NEW,
+                LocalDateTime.of(2022, 4, 2, 0, 0), 15);
+
+        historyManager.addHistory(task11);
+        historyManager.addHistory(task22);
+        historyManager.addHistory(task33);
+        historyManager.removeHistory(task33);
+
+        assertEquals(2, historyManager.getHistory().size(), "Неправильное удаление последнего элемента" +
+                " истории");
     }
 
 }

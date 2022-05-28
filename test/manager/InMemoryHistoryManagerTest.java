@@ -5,42 +5,38 @@ import enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryHistoryManagerTest extends ManagerTest{
+class InMemoryHistoryManagerTest{
+
+    private InMemoryHistoryManager historyManager;
 
     @BeforeEach
     void initInMemoryHistoryTaskManager() {
-        taskManager = new InMemoryTaskManager();
-        super.init();
+        historyManager = new InMemoryHistoryManager();
     }
     @Test
     void emptyHistoryTest() {
-        assertEquals(0, taskManager.getHistory().size(), "История должна быть пустой");
+        assertEquals(0, historyManager.getHistory().size(), "История должна быть пустой");
     }
 
     @Test
     void tryToMakeDoubleInHistoryTest() {
 
-        TaskManager taskManager1 = new InMemoryTaskManager();
-        Task task11 = new Task("Тестовое описание task1", "Тест task11", Status.NEW,
+        Task task11 = new Task(11,"Тестовое описание task1", "Тест task11", Status.NEW,
                 LocalDateTime.of(2022, 4,1,0,0), 15);
-        Task task22 = new Task("Тестовое описание task2", "Тест task22", Status.NEW,
+        Task task22 = new Task(12,"Тестовое описание task2", "Тест task22", Status.NEW,
                 LocalDateTime.of(2022, 4,2,0,0), 15);
 
-        long taskId1 = taskManager1.createTask(task11);
-        long taskId2 = taskManager1.createTask(task22);
-
-        taskManager1.getTaskById(taskId1);
-        taskManager1.getTaskById(taskId2);
-        System.out.println(taskManager1.returnAllTasks());
+        historyManager.addHistory(task11);
+        historyManager.addHistory(task22);
+        historyManager.addHistory(task22);
+        System.out.println(historyManager.getHistory());
 
         //TODO не работает правильно добавление элемента в конец. Может не только в конец
-        assertEquals(2, taskManager1.getHistory().size(), "Был добавлен дубль в историю");
+        assertEquals(2, historyManager.getHistory().size(), "Был добавлен дубль в историю");
     }
 
     @Test

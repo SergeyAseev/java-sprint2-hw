@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTasksManagerTest extends ManagerTest{
+class FileBackedTasksManagerTest extends ManagerTest<InMemoryTaskManager>{
 
     File file = new File("task.csv");
     @BeforeEach
@@ -21,8 +21,6 @@ class FileBackedTasksManagerTest extends ManagerTest{
 
     @Test
     void loadFromFileTest() {
-
-       // TaskManager taskManager = new FileBackedTasksManager(file);
 
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW,
                 LocalDateTime.of(2022, 5,25,2,0), 15);
@@ -39,12 +37,12 @@ class FileBackedTasksManagerTest extends ManagerTest{
     void managerSaveExceptionTest() {
 
         File fileIncorrect = new File("incorrect.csv");
-        //TaskManager taskManager = new FileBackedTasksManager(fileIncorrect, true);
 
         try {
             new FileBackedTasksManager(fileIncorrect, true);
         } catch (RuntimeException e) {
             System.out.println("Тест работы ManagerSaveException для некорректного имени файла");
         }
+
     }
 }

@@ -7,6 +7,7 @@ import enums.Status;
 import enums.TaskType;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +54,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     @Override
     public Task getTaskById(long taskId) {
-        super.getTaskById(taskId);
+        Task task = super.getTaskById(taskId);
         save();
-        return tasks.get(taskId);
+        return task;
     }
 
     @Override
@@ -142,19 +143,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String taskDescription = taskData[4];
         String taskName = taskData[2];
         Status taskStatus = Status.valueOf(taskData[3]);
+        LocalDateTime taskStartTime = LocalDateTime.parse(taskData[6]);
+        int taskDuration = Integer.parseInt(taskData[7]);
 
         switch (taskType) {
             case Task:
-                Task task = new Task(taskDescription, taskName, taskStatus);
+                Task task = new Task(taskDescription, taskName, taskStatus, taskStartTime, taskDuration);
                 task.setId(taskId);
                 return task;
             case Epic:
-                Epic epic = new Epic(taskDescription, taskName, taskStatus);
+                Epic epic = new Epic(taskDescription, taskName, taskStatus, taskStartTime, taskDuration);
                 epic.setId(taskId);
                 return epic;
             case SubTask:
                 long epicId = Long.parseLong(taskData[5]);
-                SubTask subTask = new SubTask(taskDescription, taskName, taskStatus, epicId);
+                SubTask subTask = new SubTask(taskDescription, taskName, taskStatus, epicId, taskStartTime, taskDuration);
                 subTask.setId(taskId);
                 return subTask;
         }

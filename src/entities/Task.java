@@ -22,6 +22,14 @@ public class Task {
 
     protected int duration;
 
+    public Task(long id, String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
+        this.id = id;
+        this.description = description;
+        this.name = name;
+        this.statusEnum = statusEnum;
+        this.startTime = startTime;
+        this.duration = duration;
+    }
     public Task(String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
         this.description = description;
         this.name = name;
@@ -112,16 +120,15 @@ public class Task {
         if (!(o instanceof Task)) return false;
         Task task = (Task) o;
         return id == task.id
-                && Objects.equals(duration, task.duration)
                 && Objects.equals(description, task.description)
                 && Objects.equals(name, task.name)
                 && Objects.equals(statusEnum, task.statusEnum)
                 && Objects.equals(startTime, task.startTime)
-                && Objects.equals(endTime, task.endTime);
+                && Objects.equals(duration, task.duration);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, description, name, statusEnum, startTime, endTime, duration);
+        return Objects.hash(id, description, name, statusEnum, startTime, duration);
     }
 }

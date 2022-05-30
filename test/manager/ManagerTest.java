@@ -18,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 abstract class ManagerTest<T extends TaskManager> {
 
     protected T taskManager;
-    Task task;
-    Epic epic;
-    Epic epic1;
-    SubTask subTask;
+    private Task task;
+    private Epic epic;
+    private Epic epic1;
+    private SubTask subTask;
 
     public void init() {
         task = new Task("Test for addingNewTask","testAddNewTask1", Status.NEW,

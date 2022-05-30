@@ -102,12 +102,8 @@ public class InMemoryTaskManager implements TaskManager {
                 return;
             }
             Task oldTask = tasks.get(newTask.getId());
-            oldTask.setName(newTask.getName());
-            oldTask.setDescription(newTask.getDescription());
-            oldTask.setStatusEnum(newTask.getStatusEnum());
-            oldTask.setStartTime(newTask.getStartTime());
-            oldTask.setDuration(newTask.getDuration());
-            tasks.put(newTask.getId(), newTask);
+            treeSet.remove(oldTask); //удаляем старую задачу
+            tasks.put(oldTask.getId(), newTask); //записываем новую задачу, сохраняя старый ID согласно ТЗ
             treeSet.add(newTask);
         } catch (RuntimeException e) {
             System.out.println("Невозможно обновить задачу: " + newTask.getId());
@@ -134,6 +130,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (!epics.containsKey(epicId)) {
                 return;
             }
+            checkCrossForTasks(newSubTask);
             SubTask oldSubTask = subTasks.get(newSubTask.getId());
             oldSubTask.setName(newSubTask.getName());
             oldSubTask.setDescription(newSubTask.getDescription());

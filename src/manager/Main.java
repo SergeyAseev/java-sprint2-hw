@@ -30,7 +30,7 @@ public class Main {
         SubTask subTask2 = new SubTask("Тестовое описание subTask2", "Тест subTask2", Status.NEW, epicId2,
                 LocalDateTime.of(2022, 5,27,0,0), 15);
         SubTask subTask3 = new SubTask("Тестовое описание subTask3", "Тест subTask3", Status.NEW, epicId2,
-                LocalDateTime.of(2022, 5,28,0,0), 15);
+                LocalDateTime.of(2022, 4,28,0,0), 15);
         long subTaskId1 = taskManager.createSubTask(subTask1);
         long subTaskId2 = taskManager.createSubTask(subTask2);
         long subTaskId3 = taskManager.createSubTask(subTask3);

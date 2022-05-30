@@ -15,9 +15,9 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Long, SubTask> subTasks = new HashMap<>();
     protected final Map<Long, Task> tasks = new HashMap<>();
 
-    protected Set treeSet = new TreeSet<>();
+    protected final Set<Task> treeSet = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)));
 
-    protected HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
     /**
      * увеличивает уникальный идентификатор
@@ -94,10 +94,25 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public void updateTask(Task task) {
-        if (tasks.containsKey(task.getId())) {
-            tasks.put(task.getId(), task);
+    public void updateTask(Task newTask) {
+
+        try {
+            checkCrossForTasks(newTask);
+            if (!tasks.containsKey(newTask.getId())) {
+                return;
+            }
+            Task oldTask = tasks.get(newTask.getId());
+            oldTask.setName(newTask.getName());
+            oldTask.setDescription(newTask.getDescription());
+            oldTask.setStatusEnum(newTask.getStatusEnum());
+            oldTask.setStartTime(newTask.getStartTime());
+            oldTask.setDuration(newTask.getDuration());
+            tasks.put(newTask.getId(), newTask);
+            treeSet.add(newTask);
+        } catch (RuntimeException e) {
+            System.out.println("Невозможно обновить задачу: " + newTask.getId());
         }
+
     }
 
     @Override
@@ -108,21 +123,34 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public void updateSubTask(SubTask newSubTask) {
 
-        if (Objects.isNull(subTask)) {
+        if (Objects.isNull(newSubTask)) {
             return;
         }
 
-        long epicId = subTask.getEpicId();
-        if (!epics.containsKey(epicId)) {
-            return;
-        }
-        if (subTasks.containsKey(subTask.getId())) {
-            subTasks.put(subTask.getId(), subTask);
-        }
+        long epicId = newSubTask.getEpicId();
+        try {
+            if (!epics.containsKey(epicId)) {
+                return;
+            }
+            SubTask oldSubTask = subTasks.get(newSubTask.getId());
+            oldSubTask.setName(newSubTask.getName());
+            oldSubTask.setDescription(newSubTask.getDescription());
+            oldSubTask.setStatusEnum(newSubTask.getStatusEnum());
+            oldSubTask.setStartTime(newSubTask.getStartTime());
+            oldSubTask.setDuration(newSubTask.getDuration());
+            Epic updatedEpic = getEpicById(newSubTask.getEpicId());
+            calculateEpicTime(updatedEpic);
+            treeSet.add(newSubTask);
 
-        updateEpicStatus(getEpicById(epicId));
+            if (subTasks.containsKey(newSubTask.getId())) {
+                subTasks.put(newSubTask.getId(), newSubTask);
+            }
+            updateEpicStatus(getEpicById(epicId));
+        } catch (RuntimeException e) {
+            System.out.println("Невозможно обновить подзадачу: " + newSubTask.getId());
+        }
     }
 
     @Override
@@ -262,6 +290,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void calculateEpicTime(Epic epic) {
 
+        if (returnSubTasksForEpicById(epic.getId()).size() == 0) {
+            return;
+        }
+
         List<Long> subTaskList = epic.getSubTaskList();
 
         List<LocalDateTime> startTimes = new ArrayList<>();
@@ -271,37 +303,26 @@ public class InMemoryTaskManager implements TaskManager {
             SubTask subTask = getSubTaskById(subTaskId);
 
             startTimes.add(subTask.getStartTime());
-            endTimes.add(subTask.getEndTime());
             subTaskDuration += subTask.getDuration();
         }
 
         Comparator<LocalDateTime> localDateTimeComparator = LocalDateTime::compareTo;
 
         epic.setStartTime(startTimes.stream().min(localDateTimeComparator).orElse(null));
-        epic.setEndTime(endTimes.stream().max(localDateTimeComparator).orElse(null));
+        epic.setEpicEndTime(epic.getStartTime().plusMinutes(subTaskDuration));
         epic.setDuration(subTaskDuration);
 
     }
 
     @Override
     public Set<Task> getPrioritizedTasks() {
-
-        List<Task> taskList = returnAllTasks();
-        List<SubTask> subTaskList = returnAllSubTasks();
-        treeSet= new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)));
-
-        treeSet.addAll(taskList);
-        treeSet.addAll(subTaskList);
-
         return treeSet;
     }
 
     public void checkCrossForTasks(Task task) {
 
         //блок на случай пустого времени старта
-        if (task.getStartTime() != null) {
-            task.setEndTime(task.getStartTime().plusMinutes(task.getDuration()));
-        } else {
+        if (task.getStartTime() == null) {
             //Task latestTask = treeSet.stream().max(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)));
             Set<Task> tempSet = getPrioritizedTasks();
             LocalDateTime latestTaskTime = LocalDateTime.MIN;
@@ -311,7 +332,6 @@ public class InMemoryTaskManager implements TaskManager {
                 }
             }
             task.setStartTime(latestTaskTime.plusMinutes(5));
-            task.setEndTime(task.getStartTime().plusMinutes(task.getDuration()));
         }
         //
 
@@ -321,8 +341,8 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime timeEndTime = task.getStartTime().plusMinutes(task.getDuration());
 
         for (Task tempTask : tempTreeSet) {
-            if ((timeStartTime.isAfter(tempTask.getStartTime()) && timeStartTime.isBefore(tempTask.getEndTime())) ||
-                    (timeEndTime.isAfter(tempTask.getStartTime()) && timeStartTime.isBefore(tempTask.getEndTime())) ){
+            if ((timeStartTime.isAfter(tempTask.getStartTime()) && timeStartTime.isBefore(tempTask.getStartTime().plusMinutes(tempTask.getDuration()))) ||
+                    (timeEndTime.isAfter(tempTask.getStartTime()) && timeStartTime.isBefore(tempTask.getStartTime().plusMinutes(tempTask.getDuration()))) ){
                 throw new RuntimeException("Пересечение задач не допускается!" + tempTask.getName());
             }
         }

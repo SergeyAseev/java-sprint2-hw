@@ -18,8 +18,6 @@ public class Task {
 
     protected LocalDateTime startTime;
 
-    protected LocalDateTime endTime;
-
     protected int duration;
 
     public Task(long id, String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
@@ -104,15 +102,6 @@ public class Task {
     public void setDuration(int duration) {
         this.duration = duration;
     }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
 
     @Override
     public boolean equals(Object o) {

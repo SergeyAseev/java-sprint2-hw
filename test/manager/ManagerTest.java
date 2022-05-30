@@ -20,15 +20,20 @@ abstract class ManagerTest<T extends TaskManager> {
     protected T taskManager;
     Task task;
     Epic epic;
+    Epic epic1;
     SubTask subTask;
 
-    void init() {
+    public void init() {
         task = new Task("Test for addingNewTask","testAddNewTask1", Status.NEW,
                 LocalDateTime.of(2022, 5,24,0,0), 15);
         taskManager.createTask(task);
 
         epic = new Epic("Test for addingNewEpic", "testAddNewEpic", Status.NEW);
         taskManager.createEpic(epic);
+
+        epic1 = new Epic("description for EpicWithoutSubTask", "EpicWithoutSubTask", Status.NEW,
+                LocalDateTime.of(2022, 1,1,0,0), 15);
+        taskManager.createEpic(epic1);
 
         subTask = new SubTask("Test for addingNewSubTask", "testAddNewSubTask",
                 Status.NEW, epic.getId(), LocalDateTime.of(2022, 4,23,0,0), 15);
@@ -92,7 +97,7 @@ abstract class ManagerTest<T extends TaskManager> {
         List<Epic> epicList = taskManager.returnAllEpics();
         taskManager.updateEpic(epic);
 
-        assertEquals(1, epicList.size(), "Должен быть один эпик");
+        assertEquals(2, epicList.size(), "Должен быть один эпик");
     }
 
     @Test
@@ -112,7 +117,7 @@ abstract class ManagerTest<T extends TaskManager> {
     @Test
     void returnAllEpics() {
         assertNotNull(taskManager.returnAllEpics(), "Эпики не возвращаются");
-        assertEquals(1, taskManager.returnAllEpics().size(), "Неверное кол-во Эпиков");
+        assertEquals(2, taskManager.returnAllEpics().size(), "Неверное кол-во Эпиков");
     }
 
     @Test
@@ -170,7 +175,7 @@ abstract class ManagerTest<T extends TaskManager> {
     void removeEpicById() {
         taskManager.removeEpicById(epic.getId());
 
-        assertEquals(0, taskManager.returnAllEpics().size(), "Конкретный Эпик не удален");
+        assertEquals(1, taskManager.returnAllEpics().size(), "Конкретный Эпик не удален");
     }
 
     @Test
@@ -346,6 +351,22 @@ abstract class ManagerTest<T extends TaskManager> {
         taskManager.createTask(task);
 
         assertNotNull(task);
+    }
+
+    @Test
+    void updateTaskTest() {
+
+        List<Task> oldTasksList = taskManager.returnAllTasks();
+        long oldTaskId = task.getId();
+        Task newTask = new Task(oldTaskId,"Test for updatedTask","UpdatedTask", Status.NEW,
+                null, 15);
+        taskManager.updateTask(newTask);
+
+        assertNotNull(newTask, "Обновленная задача не создалась");
+        List<Task> newTasksList = taskManager.returnAllTasks();
+
+        assertEquals(oldTasksList.size(), newTasksList.size(), "Количество задач после обновления должно совпадать" +
+                " с кол-ом задач до обновления");
     }
 
 }

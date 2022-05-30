@@ -1,5 +1,6 @@
 package manager;
 
+import entities.Epic;
 import entities.Task;
 import enums.Status;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTasksManagerTest extends ManagerTest<InMemoryTaskManager>{
 
-    File file = new File("task.csv");
+    final File file = new File("task.csv");
+    final File fileForEmptyTests = new File("fileForEmptyTests.csv");
     @BeforeEach
     void initFileTest() {
         taskManager = new FileBackedTasksManager(file);
@@ -30,7 +32,6 @@ class FileBackedTasksManagerTest extends ManagerTest<InMemoryTaskManager>{
         FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
         assertEquals(fileBackedTasksManager.getTaskById(task1.getId()), task1, "Задача из файла не " +
                 "равна созданной задаче");
-
     }
 
     @Test
@@ -43,6 +44,64 @@ class FileBackedTasksManagerTest extends ManagerTest<InMemoryTaskManager>{
         } catch (RuntimeException e) {
             System.out.println("Тест работы ManagerSaveException для некорректного имени файла");
         }
-
     }
+
+    @Test
+    void epicWithoutSubTaskSaveAndLoadTest() {
+
+        Epic epic11 = new Epic("description for EpicWithoutSubTask", "EpicWithoutSubTask", Status.NEW,
+                LocalDateTime.of(2022, 1,1,0,0), 15);
+        taskManager.createEpic(epic11);
+        taskManager.getEpicById(epic11.getId());
+
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.loadFromFile(file);
+        assertEquals(fileBackedTasksManager.getEpicById(epic11.getId()), epic11, "Эпик из файла не " +
+                "равен созданному");
+    }
+
+    @Test
+    void emptyHistorySaveTest() {
+
+        TaskManager fileTaskManager = FileBackedTasksManager.loadFromFile(fileForEmptyTests);
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.
+                loadFromFile(new File("fileForEmptyTests.csv"));
+
+        assertEquals(fileTaskManager.getHistory().size(), fileBackedTasksManager.getHistory().size(),
+                "История должна быть пустой");
+    }
+
+    @Test
+    void emptyHistoryLoadTest() {
+
+        TaskManager fileTaskManager = FileBackedTasksManager.loadFromFile(fileForEmptyTests);
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.
+                loadFromFile(new File("fileForEmptyTests.csv"));
+
+        assertEquals(fileTaskManager.getHistory().size(), fileBackedTasksManager.getHistory().size(),
+                "История должна быть пустой");
+    }
+
+    @Test
+    void emptyTaskListSaveAndLoadTest() {
+
+        //save
+        TaskManager fileTaskManager = FileBackedTasksManager.loadFromFile(fileForEmptyTests);
+        FileBackedTasksManager fileBackedTasksManager = FileBackedTasksManager.
+                loadFromFile(new File("fileForEmptyTests.csv"));
+        fileTaskManager.removeAllTasks();
+        fileBackedTasksManager.removeAllTasks();
+
+        assertEquals(fileTaskManager.returnAllTasks().size(), fileBackedTasksManager.returnAllTasks().size(),
+                "В списке задач ничего не должно быть");
+
+        //load
+        TaskManager fileTaskManagerLoad = new FileBackedTasksManager(new File("fileForEmptyTests.csv"), true);
+        FileBackedTasksManager fileBackedTasksManagerLoad = FileBackedTasksManager.
+                loadFromFile(new File("fileForEmptyTests.csv"));
+
+        assertEquals(fileTaskManagerLoad.returnAllTasks().size(), fileBackedTasksManagerLoad.returnAllTasks().size(),
+                "В списке задач ничего не должно быть");
+    }
+
+
 }

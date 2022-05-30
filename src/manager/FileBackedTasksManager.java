@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
 
@@ -24,7 +25,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this(file, false);
     }
 
-    public FileBackedTasksManager(File file, boolean load) {
+    FileBackedTasksManager(File file, boolean load) {
         this.file = file;
         if (load) {
             load();
@@ -74,8 +75,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
+    public void updateTask(Task newTask) {
+        super.updateTask(newTask);
         save();
     }
 
@@ -254,6 +255,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     //Восстановление менеджера истории из файла
     static List<Long> historyFromString(String value) {
+
+        if (Objects.isNull(value)) {
+            return new ArrayList<>();
+        }
+
         String[] tasksId = value.split(",");
         List<Long> historyList = new ArrayList<>();
         for (String taskId : tasksId) {

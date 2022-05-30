@@ -49,4 +49,12 @@ public class Epic extends Task {
         Epic epic = (Epic) o;
         return Objects.equals(subTaskList, epic.getSubTaskList());
     }
+
+    public LocalDateTime getEpicEndTime() {
+        return epicEndTime;
+    }
+
+    public void setEpicEndTime(LocalDateTime epicEndTime) {
+        this.epicEndTime = epicEndTime;
+    }
 }

@@ -25,7 +25,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this(file, false);
     }
 
-    FileBackedTasksManager(File file, boolean load) {
+    public FileBackedTasksManager(File file, boolean load) {
         this.file = file;
         if (load) {
             load();

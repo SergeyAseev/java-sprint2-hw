@@ -1,15 +1,16 @@
 package manager;
 
-import entities.Epic;
-import entities.SubTask;
-import entities.Task;
+import com.sun.net.httpserver.HttpServer;
+import entities.*;
 import enums.Status;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
 
@@ -46,6 +47,17 @@ public class Main {
 
         //System.out.println(taskManager.getPrioritizedTasks());
         printForTest(taskManager);
+
+        final int PORT = 8080;
+        HttpServer httpServer = HttpServer.create();
+        httpServer.bind(new InetSocketAddress(PORT), 0);
+        httpServer.createContext("/tasks", new entities.HttpTaskServer.TaskHandler());
+        httpServer.start();
+        new KVServer().start();
+
+        System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+
+
     }
 
     public static void printForTest(TaskManager taskManager) {

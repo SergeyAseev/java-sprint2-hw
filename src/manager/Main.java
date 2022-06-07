@@ -3,6 +3,8 @@ package manager;
 import com.sun.net.httpserver.HttpServer;
 import entities.*;
 import enums.Status;
+import kv.KVServer;
+import kv.KVTaskClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,14 +12,16 @@ import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+
+    static final int PORT = 8080;
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
 
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW,
-                LocalDateTime.of(2022, 5,24,0,0), 15);
+                LocalDateTime.of(2022, 5,24,1,0), 15);
         Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW,
-                LocalDateTime.of(2022, 5,25,0,0), 15);
+                LocalDateTime.of(2022, 5,25,2,0), 15);
         long taskId1 = taskManager.createTask(task1);
         long taskId2 = taskManager.createTask(task2);
 
@@ -44,19 +48,17 @@ public class Main {
         taskManager.getSubTaskById(subTaskId1);
         taskManager.getSubTaskById(subTaskId2);
         taskManager.getSubTaskById(subTaskId3);
+        //printForTest(taskManager);
 
-        //System.out.println(taskManager.getPrioritizedTasks());
-        printForTest(taskManager);
-
-        final int PORT = 8080;
+        //for server. Sprint 7
         HttpServer httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks", new entities.HttpTaskServer.TaskHandler());
+        httpServer.createContext("/tasks", new HttpTaskServer.TaskHandler());
         httpServer.start();
         new KVServer().start();
+        KVTaskClient kvTaskClient = new KVTaskClient();
 
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
-
 
     }
 

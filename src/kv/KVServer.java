@@ -1,4 +1,4 @@
-package entities;
+package kv;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -113,6 +113,11 @@ public class KVServer {
         System.out.println("Запускаем сервер на порту " + PORT);
         System.out.println("Открой в браузере http://localhost:" + PORT + "/");
         System.out.println("API_TOKEN: " + apiToken);
+        server.start();
+    }
+
+    public void stop() {
+        System.out.println("Останавливаем сервер на порту " + PORT);
         server.start();
     }
 

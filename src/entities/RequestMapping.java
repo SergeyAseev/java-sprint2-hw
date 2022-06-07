@@ -1,21 +1,25 @@
 package entities;
 
 import com.google.gson.Gson;
-import enums.Status;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import manager.FileBackedTasksManager;
 import manager.TaskManager;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class RequestMapping {
 
     private final TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), true);
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+            .create();
 
-    protected Response response (String method, String[] pathSplit, String query, String body) {
+    protected Response response(String method, String[] pathSplit, String query, String body) {
 
         String response = "";
         int responseCode = 500;
@@ -23,7 +27,7 @@ public class RequestMapping {
         String secondPath = "";
         long id = 0;
         if (pathSplit.length > 2) {
-            secondPath = pathSplit[2]; /* /history /task /epic /subtask  */
+            secondPath = pathSplit[2]; // /history /task /epic /subtask
             if (query != null) {
                 String[] splitQuery = query.split("=");
                 id = Long.parseLong(splitQuery[1]);
@@ -58,6 +62,16 @@ public class RequestMapping {
                 }
                 break;
             case "POST":
+                if (firstPath.equals("tasks")) {
+                    if ("task".equals(secondPath)) {
+                        //Task task = gson.fromJson(body, Task.class);
+                        HashMap<Long, Task> mapRestored = gson.fromJson(body, new TypeToken<HashMap<Long, Task>>() {}.getType());
+                        //response = "Создана задача с ID: " + task.getId() + " Название: " + task.toString();
+                        responseCode = 200;
+                    } else {
+                        responseCode = 400;
+                    }
+                }
                 break;
             case "DELETE":
                 if (firstPath.equals("tasks")) {
@@ -117,7 +131,7 @@ public class RequestMapping {
     }
 
     private String returnHistory() {
-        return  gson.toJson(taskManager.getHistory());
+        return gson.toJson(taskManager.getHistory());
     }
 }
 
@@ -125,8 +139,9 @@ class Response {
     String response;
     int code;
 
-    Response (String response, int code) {
+    Response(String response, int code) {
         this.response = response;
         this.code = code;
     }
 }
+

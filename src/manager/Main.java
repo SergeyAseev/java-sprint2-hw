@@ -1,5 +1,7 @@
 package manager;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
 import entities.*;
 import enums.Status;
@@ -9,15 +11,42 @@ import kv.KVTaskClient;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 
 public class Main {
 
     static final int PORT = 8080;
+
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+            .create();
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
+        //TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
 
+        HttpServer httpServer = HttpServer.create();
+        httpServer.bind(new InetSocketAddress(PORT), 0);
+        httpServer.createContext("/tasks", new HttpTaskServer.TaskHandler());
+        httpServer.start();
+        new KVServer().start();
+        HttpClient client = HttpClient.newHttpClient();
+        URI uri = URI.create("http://localhost:8078/register");
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+        KVTaskClient kvTaskClient = new KVTaskClient(); // TODO и что мне с тобой тут делать?
+
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
+        HttpResponse<String> response = client.send(request, handler);
+        String apiToken = response.body();
+
+        System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+        TaskManager taskManager = new HTTPTaskManager(8078);
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW,
                 LocalDateTime.of(2022, 5,24,1,0), 15);
         Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW,
@@ -49,17 +78,8 @@ public class Main {
         taskManager.getSubTaskById(subTaskId2);
         taskManager.getSubTaskById(subTaskId3);
         //printForTest(taskManager);
-
-        //for server. Sprint 7
-        HttpServer httpServer = HttpServer.create();
-        httpServer.bind(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks", new HttpTaskServer.TaskHandler());
-        httpServer.start();
-        new KVServer().start();
-        KVTaskClient kvTaskClient = new KVTaskClient();
-
-        System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
-
+        kvTaskClient.put(apiToken, gson.toJson(taskManager.returnAllTasks()));
+        kvTaskClient.load(apiToken);
     }
 
     public static void printForTest(TaskManager taskManager) {

@@ -1,9 +1,11 @@
 package manager;
 
+import entities.HTTPTaskManager;
+
 public class Managers {
 
     public static TaskManager getDefault() {
-        return new FileBackedTasksManager();
+        return new HTTPTaskManager();
     }
 
     public static HistoryManager getDefaultHistory() {

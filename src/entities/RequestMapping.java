@@ -64,9 +64,9 @@ public class RequestMapping {
             case "POST":
                 if (firstPath.equals("tasks")) {
                     if ("task".equals(secondPath)) {
-                        //Task task = gson.fromJson(body, Task.class);
+                        Task task = gson.fromJson(body, Task.class);
                         HashMap<Long, Task> mapRestored = gson.fromJson(body, new TypeToken<HashMap<Long, Task>>() {}.getType());
-                        //response = "Создана задача с ID: " + task.getId() + " Название: " + task.toString();
+                        response = "Создана задача с ID: " + task.getId() + " Название: " + task.toString();
                         responseCode = 200;
                     } else {
                         responseCode = 400;

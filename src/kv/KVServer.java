@@ -10,9 +10,6 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-/**
- * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
- */
 public class KVServer {
     public static final int PORT = 8078;
     private final String apiToken;
@@ -43,14 +40,14 @@ public class KVServer {
                     return;
                 }
                 if (data.containsKey(key)) {
-                    sendText(httpExchange,data.get(key));
+                    sendText(httpExchange, data.get(key));
                     System.out.println("Значение для ключа " + key + " успешно загружено");
                     httpExchange.sendResponseHeaders(200, 0);
                     return;
                 }
                 if (!data.containsKey(key)) {
                     System.out.println("Значение для ключа " + key + " не найдено");
-                    httpExchange.sendResponseHeaders(200, 0);
+                    httpExchange.sendResponseHeaders(400, 0);
                     return;
                 }
             } else {
@@ -64,6 +61,7 @@ public class KVServer {
 
     private void save(HttpExchange h) throws IOException {
         try {
+
             System.out.println("\n/save");
             if (!hasAuth(h)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");

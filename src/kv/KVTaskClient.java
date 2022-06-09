@@ -7,49 +7,57 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    private HttpClient client;
+    public HttpClient client;
     private String apiToken;
-    private URI uri;
-    public KVTaskClient() throws IOException, InterruptedException {
-        client = HttpClient.newHttpClient();
-        uri = URI.create("http://localhost:8078/register");
+    private String url;
+
+    public KVTaskClient(String url) throws IOException, InterruptedException {
+        this.client = HttpClient.newHttpClient();
+        this.url = url;
         HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url + "/register"))
                 .GET()
-                .uri(uri)
                 .build();
 
-        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-        HttpResponse<String> response = client.send(request, handler);
-        apiToken = response.body();
-        System.out.println("API_TOKEN: " + apiToken);
+        try {
+            HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
+            HttpResponse<String> response = client.send(request, handler);
+            if (response.statusCode() == 200) {
+                this.apiToken = response.body();
+            } else {
+                System.out.println("Ошибка. Код состояния: " + response.statusCode());
+            }
+        } catch (NullPointerException | InterruptedException | IOException e) {
+                System.out.println("Ошибка. Что-то с адресом. Попробуйте еще раз!");
+            }
     }
+
     // сохраняет состояние менеджера задач через запрос POST /save/<ключ>?API_TOKEN=
     public void put(String key, String json) throws IOException, InterruptedException {
         try {
-            uri = URI.create("http://localhost:8078/save/" + key + "?API_TOKEN=" + apiToken);
             client = HttpClient.newHttpClient();
             HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
             HttpRequest request = HttpRequest.newBuilder().
-                            POST(body).
-                            uri(uri).
-                            build();
+                    POST(body).
+                    uri(URI.create("http://localhost:8078/save/" + key + "?API_TOKEN=" + apiToken)).
+                    build();
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request, handler);
             System.out.println(response);
-        } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
+        } catch (IOException | InterruptedException e) {
             System.out.println("KVTaskClient - ошибка при сохранении данных");
         }
     }
+
     // возвращает состояние менеджера задач через запрос GET /load/<ключ>?API_TOKEN=
     public String load(String key) {
         String answer = null;
         try {
-            uri = URI.create("http://localhost:8078/load/" + key + "?API_TOKEN=" + apiToken);
             client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder().
-                            GET().
-                            uri(uri).
-                            build();
+                    GET().
+                    uri(URI.create("http://localhost:8078/load/" + key + "?API_TOKEN=" + apiToken)).
+                    build();
             HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
             HttpResponse<String> response = client.send(request, handler);
             answer = response.body();

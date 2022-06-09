@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
 import entities.*;
 import enums.Status;
+import enums.TaskType;
 import kv.KVServer;
 import kv.KVTaskClient;
 
@@ -19,18 +20,43 @@ import java.time.LocalDateTime;
 
 public class Main {
 
-    static final int PORT = 8080;
+/*    static final int PORT = 8080;
 
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-            .create();
+            .create();*/
+
+/*    public static Gson getGson() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter());
+        return gsonBuilder.create();
+    }*/
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        //TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
+        new KVServer().start();
+        HttpTaskServer.getInstance().start();
+
+
+
+/*
+        Gson gson = getGson();
+        System.out.println(gson.getAdapter(LocalDateTime.class));
+
+        Task task = new Task(1,"Первая тестовая задача.", "qwe", Status.NEW,
+                LocalDateTime.now(), 15);
+
+        System.out.println(task);
+        System.out.println(gson.toJson(task));
+*/
+
+
+        //new KVTaskClient("http://localhost:8078/register");
+
+        /*//TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
 
         HttpServer httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks", new HttpTaskServer.TaskHandler());
+        //httpServer.createContext("/tasks", new HttpTaskServer.getInstance()TaskHandler());
         httpServer.start();
         new KVServer().start();
         HttpClient client = HttpClient.newHttpClient();
@@ -39,14 +65,14 @@ public class Main {
                 .GET()
                 .uri(uri)
                 .build();
-        KVTaskClient kvTaskClient = new KVTaskClient(); // TODO и что мне с тобой тут делать?
+        KVTaskClient kvTaskClient = new KVTaskClient("http://localhost:8078/register"); // TODO и что мне с тобой тут делать?
 
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         HttpResponse<String> response = client.send(request, handler);
         String apiToken = response.body();
 
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
-        TaskManager taskManager = new HTTPTaskManager(8078);
+        TaskManager taskManager = new HTTPTaskManager(PORT);
         Task task1 = new Task("Тестовое описание task1", "Тест task1", Status.NEW,
                 LocalDateTime.of(2022, 5,24,1,0), 15);
         Task task2 = new Task("Тестовое описание task2", "Тест task2", Status.NEW,
@@ -79,10 +105,10 @@ public class Main {
         taskManager.getSubTaskById(subTaskId3);
         //printForTest(taskManager);
         kvTaskClient.put(apiToken, gson.toJson(taskManager.returnAllTasks()));
-        kvTaskClient.load(apiToken);
+        kvTaskClient.load(apiToken);*/
     }
 
-    public static void printForTest(TaskManager taskManager) {
+/*    public static void printForTest(TaskManager taskManager) {
 
         System.out.println("Все задачи:");
         System.out.println(taskManager.returnAllTasks());
@@ -92,5 +118,5 @@ public class Main {
         System.out.println(taskManager.returnAllSubTasks());
         System.out.println("История вызовов:");
         System.out.println(taskManager.getHistory());
-    }
+    }*/
 }

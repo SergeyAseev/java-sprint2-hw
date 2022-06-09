@@ -11,12 +11,13 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Objects;
 
+@Deprecated
 public class RequestMapping {
 
     private final TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), true);
 
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+          //  .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
             .create();
 
     protected Response response(String method, String[] pathSplit, String query, String body) {
@@ -135,6 +136,7 @@ public class RequestMapping {
     }
 }
 
+@Deprecated
 class Response {
     String response;
     int code;

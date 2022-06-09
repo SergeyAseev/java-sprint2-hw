@@ -1,25 +1,24 @@
 package entities;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import manager.FileBackedTasksManager;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 import kv.KVTaskClient;
+
 public class HTTPTaskManager extends FileBackedTasksManager {
-    int port;
 
-    KVTaskClient kvTaskClient;
+    private KVTaskClient kvTaskClient;
 
-    {
-        try {
-            kvTaskClient = new KVTaskClient();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final Gson gson = new Gson();
 
-    public HTTPTaskManager(int port) {
-        this.port = port;
+    public HTTPTaskManager(String url) throws IOException, InterruptedException {
+        this.kvTaskClient = new KVTaskClient(url);
+        load();
     }
 
     public HTTPTaskManager() {
@@ -28,12 +27,30 @@ public class HTTPTaskManager extends FileBackedTasksManager {
     @Override
     public void save() {
         super.save();
-        //kvTaskClient.put(String key, String json);
+        try {
+            kvTaskClient.put("tasks/task", gson.toJson(tasks));
+            kvTaskClient.put("tasks/epic", gson.toJson(epics));
+            kvTaskClient.put("tasks/subtask", gson.toJson(subTasks));
+            kvTaskClient.put("tasks/history", gson.toJson(historyManager));
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public void load() {
-        super.load();
-        //kvTaskClient.load();
+        try {
+            tasks = gson.fromJson(kvTaskClient.load("tasks/task"), new TypeToken<HashMap<Long, Task>>() {
+            }.getType());
+            tasks = gson.fromJson(kvTaskClient.load("tasks/epic"), new TypeToken<HashMap<Long, Epic>>() {
+            }.getType());
+            tasks = gson.fromJson(kvTaskClient.load("tasks/subtask"), new TypeToken<HashMap<Long, SubTask>>() {
+            }.getType());
+            tasks = gson.fromJson(kvTaskClient.load("tasks/history"), new TypeToken<HashMap<List, Long>>() {
+            }.getType());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

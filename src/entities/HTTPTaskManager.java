@@ -2,13 +2,12 @@ package entities;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import kv.KVTaskClient;
 import manager.FileBackedTasksManager;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-
-import kv.KVTaskClient;
 
 public class HTTPTaskManager extends FileBackedTasksManager {
 
@@ -16,12 +15,10 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     private final Gson gson = new Gson();
 
-    public HTTPTaskManager(String url) throws IOException, InterruptedException {
-        this.kvTaskClient = new KVTaskClient(url);
+    public HTTPTaskManager(int port) {
+        super();
+        this.kvTaskClient = new KVTaskClient(port);
         load();
-    }
-
-    public HTTPTaskManager() {
     }
 
     @Override

@@ -1,6 +1,10 @@
 package manager;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import entities.Epic;
+import entities.LocalDateAdapter;
 import entities.SubTask;
 import entities.Task;
 import enums.Status;
@@ -9,9 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +24,10 @@ abstract class ManagerTest<T extends TaskManager> {
     private Epic epic;
     private Epic epic1;
     private SubTask subTask;
+
+    private Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+            .create();
 
     public void init() {
         task = new Task("Test for addingNewTask","testAddNewTask1", Status.NEW,
@@ -113,7 +119,6 @@ abstract class ManagerTest<T extends TaskManager> {
         assertNotNull(taskManager.returnAllTasks(), "Задачи не возвращаются");
         assertEquals(1, taskManager.returnAllTasks().size(), "Неверное кол-во Задач");
     }
-
     @Test
     void returnAllEpics() {
         assertNotNull(taskManager.returnAllEpics(), "Эпики не возвращаются");

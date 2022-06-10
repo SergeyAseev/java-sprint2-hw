@@ -1,19 +1,26 @@
 package kv;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import entities.LocalDateAdapter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class KVServer {
     public static final int PORT = 8078;
     private final String apiToken;
     private final HttpServer server;
+
+    private final Gson gson;
     private final Map<String, String> data = new HashMap<>();
 
     public KVServer() throws IOException {
@@ -22,46 +29,43 @@ public class KVServer {
         server.createContext("/register", this::register);
         server.createContext("/save", this::save);
         server.createContext("/load", this::load);
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .create();
     }
 
     private void load(HttpExchange httpExchange) throws IOException {
+        String responseStr = "";
         try {
-            System.out.println("\n/load");
+            // httpExchange.getRequestHeaders().set("Content-Type", "application/json");
             if (!hasAuth(httpExchange)) {
-                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+                responseStr = gson.toJson("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 httpExchange.sendResponseHeaders(403, 0);
                 return;
             }
             if ("GET".equals(httpExchange.getRequestMethod())) {
-                String key = httpExchange.getRequestURI().getPath().substring("/load/".length());
+                String key = httpExchange.getRequestURI().getPath().substring("/save/".length());
                 if (key.isEmpty()) {
-                    System.out.println("Key для загрузки пустой. key указывается в пути: /load/{key}");
+                    responseStr = gson.toJson("Key для загрузки пустой. key указывается в пути: /load/{key}");
                     httpExchange.sendResponseHeaders(400, 0);
                     return;
                 }
-                if (data.containsKey(key)) {
-                    sendText(httpExchange, data.get(key));
-                    System.out.println("Значение для ключа " + key + " успешно загружено");
-                    httpExchange.sendResponseHeaders(200, 0);
-                    return;
-                }
-                if (!data.containsKey(key)) {
-                    System.out.println("Значение для ключа " + key + " не найдено");
-                    httpExchange.sendResponseHeaders(400, 0);
-                    return;
-                }
+                httpExchange.sendResponseHeaders(200, 0);
+                responseStr = gson.toJson(data.get(key));
             } else {
-                System.out.println("/load ждёт GET-запроса, а получил: " + httpExchange.getRequestMethod());
+                responseStr = gson.toJson("Нет такого метода");
                 httpExchange.sendResponseHeaders(405, 0);
             }
         } finally {
-            httpExchange.close();
+            try (OutputStream outputStream = httpExchange.getResponseBody()) {
+                outputStream.write(responseStr.getBytes());
+            }
         }
+        httpExchange.close();
     }
 
     private void save(HttpExchange h) throws IOException {
         try {
-
             System.out.println("\n/save");
             if (!hasAuth(h)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
@@ -88,6 +92,8 @@ public class KVServer {
                 System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
                 h.sendResponseHeaders(405, 0);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             h.close();
         }
@@ -102,6 +108,8 @@ public class KVServer {
                 System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
                 h.sendResponseHeaders(405, 0);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             h.close();
         }

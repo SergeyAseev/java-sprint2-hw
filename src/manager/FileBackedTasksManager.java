@@ -173,7 +173,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Сохранение в файл
-    public void save() {
+    protected void save() {
 
         try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.append("id,type,name,status,description,epic,startTime,duration");
@@ -198,7 +198,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Восстановление из файла
-    public void load() {
+    protected void load() {
         long indexFromHistory = 0L;
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.readLine(); // Пропускаем заголовок

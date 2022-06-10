@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import enums.Status;
 import enums.TaskType;
 import manager.Managers;
 import manager.TaskManager;
@@ -30,15 +29,12 @@ public class HttpTaskServer {
 
     }
 
-    public static HttpServer getInstance() throws IOException, InterruptedException {
+    public static HttpServer getInstance() throws IOException {
 
         if (httpServer == null) {
             taskManager = Managers.getDefault();
-            //taskManager = Managers.getDefault("http://localhost:8078/register/");
-            //taskManager = new HTTPTaskManager("http://localhost:8078/register/");
             gson = new GsonBuilder()
                     .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                    .registerTypeAdapter(Status.class, new EnumAdapter())
                     .create();
 
             httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -61,11 +57,13 @@ public class HttpTaskServer {
                 httpExchange.sendResponseHeaders(200, 0);
             } else {
                 strResponse = gson.toJson("Неверный метод");
-                httpExchange.sendResponseHeaders(405,0);
+                httpExchange.sendResponseHeaders(405, 0);
             }
             outputStream.write(strResponse.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -76,7 +74,7 @@ public class HttpTaskServer {
             String method = httpExchange.getRequestMethod();
             Map<String, String> queryParamMap = getParams(httpExchange);
 
-            switch(method) {
+            switch (method) {
                 case "GET":
                     //тут будем получать
                     if (!queryParamMap.isEmpty()) {
@@ -102,7 +100,8 @@ public class HttpTaskServer {
                     if (!queryParamMap.isEmpty()) {
                         // тут будем обновлять
                         try {
-                            SubTask subTask = gson.fromJson(jsonStr, new TypeToken<SubTask>() {}.getType());
+                            SubTask subTask = gson.fromJson(jsonStr, new TypeToken<SubTask>() {
+                            }.getType());
                             subTask.setId(Long.parseLong(queryParamMap.get("id")));
                             strResponse = gson.toJson(subTask);
                             httpExchange.sendResponseHeaders(200, 0);
@@ -113,7 +112,8 @@ public class HttpTaskServer {
                     } else {
                         // тут будем создавать
                         try {
-                            SubTask subTask = gson.fromJson(jsonStr, new TypeToken<SubTask>() {}.getType());
+                            SubTask subTask = gson.fromJson(jsonStr, new TypeToken<SubTask>() {
+                            }.getType());
                             taskManager.createSubTask(subTask);
                             if (subTask != null) {
                                 strResponse = gson.toJson(subTask);
@@ -154,6 +154,8 @@ public class HttpTaskServer {
             outputStream.write(strResponse.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -164,7 +166,7 @@ public class HttpTaskServer {
             String method = httpExchange.getRequestMethod();
             Map<String, String> queryParamMap = getParams(httpExchange);
 
-            switch(method) {
+            switch (method) {
                 case "GET":
                     //тут будем получать
                     if (!queryParamMap.isEmpty()) {
@@ -190,7 +192,8 @@ public class HttpTaskServer {
                     if (!queryParamMap.isEmpty()) {
                         // тут будем обновлять
                         try {
-                            Epic epic = gson.fromJson(jsonStr, new TypeToken<Epic>() {}.getType());
+                            Epic epic = gson.fromJson(jsonStr, new TypeToken<Epic>() {
+                            }.getType());
                             epic.setId(Long.parseLong(queryParamMap.get("id")));
                             strResponse = gson.toJson(epic);
                             httpExchange.sendResponseHeaders(200, 0);
@@ -201,7 +204,8 @@ public class HttpTaskServer {
                     } else {
                         // тут будем создавать
                         try {
-                            Epic epic = gson.fromJson(jsonStr, new TypeToken<Epic>() {}.getType());
+                            Epic epic = gson.fromJson(jsonStr, new TypeToken<Epic>() {
+                            }.getType());
                             taskManager.createEpic(epic);
                             if (epic != null) {
                                 strResponse = gson.toJson(epic);
@@ -242,6 +246,8 @@ public class HttpTaskServer {
             outputStream.write(strResponse.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -252,7 +258,7 @@ public class HttpTaskServer {
             String method = httpExchange.getRequestMethod();
             Map<String, String> queryParamMap = getParams(httpExchange);
 
-            switch(method) {
+            switch (method) {
                 case "GET":
                     //тут будем получать
                     if (!queryParamMap.isEmpty()) {
@@ -278,7 +284,8 @@ public class HttpTaskServer {
                     if (!queryParamMap.isEmpty()) {
                         // тут будем обновлять
                         try {
-                            Task task = gson.fromJson(jsonStr, new TypeToken<Task>() {}.getType());
+                            Task task = gson.fromJson(jsonStr, new TypeToken<Task>() {
+                            }.getType());
                             task.setId(Long.parseLong(queryParamMap.get("id")));
                             strResponse = gson.toJson(task);
                             httpExchange.sendResponseHeaders(200, 0);
@@ -290,7 +297,8 @@ public class HttpTaskServer {
                         // тут будем создавать
                         try {
                             //Task task = gson.fromJson(jsonStr, Task.class);
-                            Task task = gson.fromJson(jsonStr, new TypeToken<Task>() {}.getType());
+                            Task task = gson.fromJson(jsonStr, new TypeToken<Task>() {
+                            }.getType());
                             taskManager.createTask(task);// TODO падает с NPE.
                             if (task != null) {
                                 strResponse = gson.toJson(task);
@@ -332,6 +340,8 @@ public class HttpTaskServer {
             outputStream.write(strResponse.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -347,11 +357,13 @@ public class HttpTaskServer {
                 httpExchange.sendResponseHeaders(200, 0);
             } else {
                 strResponse = gson.toJson("Неверный метод");
-                httpExchange.sendResponseHeaders(405,0);
+                httpExchange.sendResponseHeaders(405, 0);
             }
             outputStream.write(strResponse.getBytes());
         } catch (IOException e) {
             throw new RuntimeException();
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -374,44 +386,17 @@ public class HttpTaskServer {
         }
     }
 
-    private static Class<? extends Task> getClassByType(TaskType taskType) {
-        switch (taskType) {
-            case Task:
-                return Task.class;
-            case Epic:
-                return Epic.class;
-            case SubTask:
-                return SubTask.class;
-            default:
-                return null;
-        }
-    }
-
     private static String returnAll() {
-        return gson.toJson(taskManager.returnAllTasks()) + gson.toJson(taskManager.returnAllSubTasks())
-                + gson.toJson(taskManager.returnAllEpics());
-    }
-
-/*    public static class TaskHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            System.out.println("Началась обработка /tasks запроса от клиента."); //убеждаемся, что хоть что-то работает
-
-            //заготовка
-            String path = httpExchange.getRequestURI().getPath();
-            String method = httpExchange.getRequestMethod();
-            String[] pathSplit = path.split("/");
-            String query = httpExchange.getRequestURI().getQuery();
-            InputStream inputStream = httpExchange.getRequestBody();
-            String bodyStr = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            //
-            RequestMapping requestMapping = new RequestMapping();
-            Response response = requestMapping.response(method, pathSplit, query, bodyStr);
-
-            httpExchange.sendResponseHeaders(response.code, 0);
-            try (OutputStream os = httpExchange.getResponseBody()) {
-                os.write(response.response.getBytes());
-            }
+        Map<Long, Task> commonMap = new HashMap<>();
+        for (Task task : taskManager.returnAllTasks()) {
+            commonMap.put(task.getId(), task);
         }
-    }*/
+        for (Epic epic : taskManager.returnAllEpics()) {
+            commonMap.put(epic.getId(), epic);
+        }
+        for (SubTask subTask : taskManager.returnAllSubTasks()) {
+            commonMap.put(subTask.getId(), subTask);
+        }
+        return gson.toJson(commonMap);
+    }
 }

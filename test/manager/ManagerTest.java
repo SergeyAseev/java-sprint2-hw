@@ -189,8 +189,6 @@ abstract class ManagerTest<T extends TaskManager> {
     @Test
     @DisplayName("empty list of subTask for epic status test")
     void emptyListOfSubTaskCheckEpicStatusTest() {
-        //TaskManager taskManager = new FileBackedTasksManager(new File("task.csv"), false);
-
         Epic epic1 = new Epic("Тестовое описание epic1", "Test epic1", Status.NEW, LocalDateTime.now(), 15);
         long epicId1 = taskManager.createEpic(epic1);
 

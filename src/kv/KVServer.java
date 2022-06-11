@@ -37,7 +37,6 @@ public class KVServer {
     private void load(HttpExchange httpExchange) throws IOException {
         String responseStr = "";
         try {
-            // httpExchange.getRequestHeaders().set("Content-Type", "application/json");
             if (!hasAuth(httpExchange)) {
                 responseStr = gson.toJson("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 httpExchange.sendResponseHeaders(403, 0);

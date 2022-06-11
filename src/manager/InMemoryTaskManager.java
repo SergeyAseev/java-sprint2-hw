@@ -343,7 +343,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         //блок на случай пустого времени старта
         if (task.getStartTime() == null) {
-            //Task latestTask = treeSet.stream().max(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)));
             Set<Task> tempSet = getPrioritizedTasks();
             LocalDateTime latestTaskTime = LocalDateTime.MIN;
             for (Task tempTask : tempSet) {

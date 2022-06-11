@@ -14,13 +14,13 @@ public class Task {
 
     protected String name;
 
-    protected Enum<Status> statusEnum;
+    protected Status statusEnum;
 
     protected LocalDateTime startTime;
 
     protected int duration;
 
-    public Task(long id, String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
+    public Task(long id, String description, String name, Status statusEnum, LocalDateTime startTime, int duration) {
         this.id = id;
         this.description = description;
         this.name = name;
@@ -28,7 +28,7 @@ public class Task {
         this.startTime = startTime;
         this.duration = duration;
     }
-    public Task(String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
+    public Task(String description, String name, Status statusEnum, LocalDateTime startTime, int duration) {
         this.description = description;
         this.name = name;
         this.statusEnum = statusEnum;
@@ -36,7 +36,7 @@ public class Task {
         this.duration = duration;
     }
 
-    public Task(String description, String name, Enum<Status> statusEnum) {
+    public Task(String description, String name, Status statusEnum) {
         this.description = description;
         this.name = name;
         this.statusEnum = statusEnum;
@@ -66,11 +66,11 @@ public class Task {
         this.name = name;
     }
 
-    public Enum<Status> getStatusEnum() {
+    public Status getStatusEnum() {
         return statusEnum;
     }
 
-    public void setStatusEnum(Enum<Status> statusEnum) {
+    public void setStatusEnum(Status statusEnum) {
         this.statusEnum = statusEnum;
     }
 

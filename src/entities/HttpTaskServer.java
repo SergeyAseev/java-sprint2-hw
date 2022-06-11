@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import enums.TaskType;
 import manager.Managers;
 import manager.TaskManager;
 
@@ -18,45 +17,70 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class HttpTaskServer {
 
-    private static TaskManager taskManager;
-    private static HttpServer httpServer;
-    private static Gson gson;
+    private TaskManager taskManager;
+    private HttpServer httpServer;
+    private Gson gson;
     static final int PORT = 8080;
 
-    private HttpTaskServer() {
-
+    public HttpTaskServer() {
+        Managers managers = new Managers();
+        taskManager = managers.getDefault();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .create();
     }
 
-    public static HttpServer getInstance() throws IOException {
+    public HttpTaskServer(TaskManager taskManager) {
+        this.taskManager = taskManager;
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .create();
+        init();
+    }
+
+    private void init() {
+        try {
+            httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        httpServer.createContext("/tasks", this::getAllTasks);
+        httpServer.createContext("/tasks/task", this::getTask);
+        httpServer.createContext("/tasks/epic", this::getEpic);
+        httpServer.createContext("/tasks/subtask", this::getSubTask);
+        httpServer.createContext("/tasks/history", this::getHistory);
+    }
+
+    public HttpServer getInstance() throws IOException {
 
         if (httpServer == null) {
-            taskManager = Managers.getDefault();
-            gson = new GsonBuilder()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                    .create();
-
+            HttpTaskServer httpTaskServer = new HttpTaskServer();
             httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
-            httpServer.createContext("/tasks", HttpTaskServer::getAllTasks);
-            httpServer.createContext("/tasks/task", HttpTaskServer::getTask);
-            httpServer.createContext("/tasks/epic", HttpTaskServer::getEpic);
-            httpServer.createContext("/tasks/subtask", HttpTaskServer::getSubTask);
-            httpServer.createContext("/tasks/history", HttpTaskServer::getHistory);
+            httpServer.createContext("/tasks", httpTaskServer::getAllTasks);
+            httpServer.createContext("/tasks/task", httpTaskServer::getTask);
+            httpServer.createContext("/tasks/epic", httpTaskServer::getEpic);
+            httpServer.createContext("/tasks/subtask", httpTaskServer::getSubTask);
+            httpServer.createContext("/tasks/history", httpTaskServer::getHistory);
         }
         return httpServer;
     }
 
-    private static void getHistory(HttpExchange httpExchange) {
+    private void getHistory(HttpExchange httpExchange) {
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             httpExchange.getResponseHeaders().set("Content-Type", "application/json");
 
             String strResponse = "";
             if (httpExchange.getRequestMethod().equals("GET")) {
                 strResponse = gson.toJson(taskManager.getHistory());
+                sendText(httpExchange, strResponse);
                 httpExchange.sendResponseHeaders(200, 0);
             } else {
                 strResponse = gson.toJson("Неверный метод");
+                sendText(httpExchange, strResponse);
                 httpExchange.sendResponseHeaders(405, 0);
             }
             outputStream.write(strResponse.getBytes());
@@ -67,7 +91,7 @@ public class HttpTaskServer {
         }
     }
 
-    private static void getSubTask(HttpExchange httpExchange) {
+    private void getSubTask(HttpExchange httpExchange) {
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             httpExchange.getResponseHeaders().set("Content-Type", "application/json");
             String strResponse = "";
@@ -82,17 +106,21 @@ public class HttpTaskServer {
                             SubTask subTask = taskManager.getSubTaskById(Long.parseLong(queryParamMap.get("id")));
                             if (Objects.nonNull(subTask)) {
                                 strResponse = gson.toJson(subTask);
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(200, 0);
                             } else {
                                 strResponse = gson.toJson("Подзадача не найдена");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Что-то пошло не так" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
                         strResponse = gson.toJson(taskManager.returnAllSubTasks());
+                        sendText(httpExchange, strResponse);
                         httpExchange.sendResponseHeaders(200, 0);
                     }
                 case "POST":
@@ -104,6 +132,7 @@ public class HttpTaskServer {
                             }.getType());
                             subTask.setId(Long.parseLong(queryParamMap.get("id")));
                             strResponse = gson.toJson(subTask);
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(200, 0);
                         } catch (Exception e) {
                             strResponse = gson.toJson("Подзадача не обновилась" + e.getMessage());
@@ -117,13 +146,16 @@ public class HttpTaskServer {
                             taskManager.createSubTask(subTask);
                             if (subTask != null) {
                                 strResponse = gson.toJson(subTask);
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(201, 0);
                             } else {
                                 strResponse = gson.toJson("Что-то пошло не так");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Подзадача не создалась" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     }
@@ -134,17 +166,21 @@ public class HttpTaskServer {
                             if (subTask != null) {
                                 taskManager.removeSubTaskById(subTask.getId());
                                 strResponse = gson.toJson("Подзадача удалена");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(200, 0);
                             } else {
                                 strResponse = gson.toJson("Что-то пошло не так");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Чтобы удалить что-то ненужное, надо сначала создать что-то ненужное");
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
                         strResponse = gson.toJson("Чтобы удалить что-то ненужное, надо сначала создать что-то ненужное");
+                        sendText(httpExchange, strResponse);
                         httpExchange.sendResponseHeaders(400, 0);
                     }
                 default:
@@ -159,7 +195,7 @@ public class HttpTaskServer {
         }
     }
 
-    private static void getEpic(HttpExchange httpExchange) {
+    private void getEpic(HttpExchange httpExchange) {
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             httpExchange.getResponseHeaders().set("Content-Type", "application/json");
             String strResponse = "";
@@ -174,17 +210,21 @@ public class HttpTaskServer {
                             Epic epic = taskManager.getEpicById(Long.parseLong(queryParamMap.get("id")));
                             if (Objects.nonNull(epic)) {
                                 strResponse = gson.toJson(epic);
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(200, 0);
                             } else {
                                 strResponse = gson.toJson("Эпик не найден");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Что-то пошло не так" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
                         strResponse = gson.toJson(taskManager.returnAllEpics());
+                        sendText(httpExchange, strResponse);
                         httpExchange.sendResponseHeaders(200, 0);
                     }
                 case "POST":
@@ -196,9 +236,11 @@ public class HttpTaskServer {
                             }.getType());
                             epic.setId(Long.parseLong(queryParamMap.get("id")));
                             strResponse = gson.toJson(epic);
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(200, 0);
                         } catch (Exception e) {
                             strResponse = gson.toJson("Эпик не обновилась" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
@@ -209,13 +251,16 @@ public class HttpTaskServer {
                             taskManager.createEpic(epic);
                             if (epic != null) {
                                 strResponse = gson.toJson(epic);
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(201, 0);
                             } else {
                                 strResponse = gson.toJson("Что-то пошло не так");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Эпик не создался" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     }
@@ -226,17 +271,21 @@ public class HttpTaskServer {
                             if (epic != null) {
                                 taskManager.removeSubTaskById(epic.getId());
                                 strResponse = gson.toJson("Эпик удалеа");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(200, 0);
                             } else {
                                 strResponse = gson.toJson("Что-то пошло не так");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Чтобы удалить что-то ненужное, надо сначала создать что-то ненужное");
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
                         strResponse = gson.toJson("Чтобы удалить что-то ненужное, надо сначала создать что-то ненужное");
+                        sendText(httpExchange, strResponse);
                         httpExchange.sendResponseHeaders(400, 0);
                     }
                 default:
@@ -251,7 +300,8 @@ public class HttpTaskServer {
         }
     }
 
-    private static void getTask(HttpExchange httpExchange) {
+    private void getTask(HttpExchange httpExchange) {
+        System.out.println(httpExchange.getRequestMethod());
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             httpExchange.getResponseHeaders().set("Content-Type", "application/json");
             String strResponse = "";
@@ -263,20 +313,25 @@ public class HttpTaskServer {
                     //тут будем получать
                     if (!queryParamMap.isEmpty()) {
                         try {
+                            String qq = queryParamMap.get("id");
                             Task task = taskManager.getTaskById(Long.parseLong(queryParamMap.get("id")));
                             if (Objects.nonNull(task)) {
                                 strResponse = gson.toJson(task);
-                                httpExchange.sendResponseHeaders(200, 0);
+                                sendText(httpExchange, strResponse);
+                                return;
                             } else {
                                 strResponse = gson.toJson("Задача не найдена");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
+                            e.printStackTrace();
                             strResponse = gson.toJson("Задачи с таким ID нет " + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
-                        strResponse = gson.toJson(taskManager.returnAllTasks());
+                        sendText(httpExchange, "Нечего_возвращать");
                         httpExchange.sendResponseHeaders(400, 0);
                     }
                 case "POST":
@@ -288,28 +343,31 @@ public class HttpTaskServer {
                             }.getType());
                             task.setId(Long.parseLong(queryParamMap.get("id")));
                             strResponse = gson.toJson(task);
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(200, 0);
                         } catch (Exception e) {
                             strResponse = gson.toJson("Задача не обновилась" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
                         // тут будем создавать
                         try {
-                            //Task task = gson.fromJson(jsonStr, Task.class);
                             Task task = gson.fromJson(jsonStr, new TypeToken<Task>() {
                             }.getType());
-                            taskManager.createTask(task);// TODO падает с NPE.
+                            taskManager.createTask(task);
                             if (task != null) {
                                 strResponse = gson.toJson(task);
-                                // попадает
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(201, 0);
                             } else {
                                 strResponse = gson.toJson("Что-то пошло не так");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Задача не создалась" + e.getMessage());
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     }
@@ -320,17 +378,21 @@ public class HttpTaskServer {
                             if (task != null) {
                                 taskManager.removeTaskById(task.getId());
                                 strResponse = gson.toJson("Задача удалена");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(200, 0);
                             } else {
                                 strResponse = gson.toJson("Что-то пошло не так");
+                                sendText(httpExchange, strResponse);
                                 httpExchange.sendResponseHeaders(404, 0);
                             }
                         } catch (Exception e) {
                             strResponse = gson.toJson("Чтобы удалить что-то ненужное, надо сначала создать что-то ненужное");
+                            sendText(httpExchange, strResponse);
                             httpExchange.sendResponseHeaders(400, 0);
                         }
                     } else {
                         strResponse = gson.toJson("Чтобы удалить что-то ненужное, надо сначала создать что-то ненужное");
+                        sendText(httpExchange, strResponse);
                         httpExchange.sendResponseHeaders(400, 0);
                     }
                 default:
@@ -345,15 +407,14 @@ public class HttpTaskServer {
         }
     }
 
-    private static void getAllTasks(HttpExchange httpExchange) {
+    private void getAllTasks(HttpExchange httpExchange) {
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             httpExchange.getResponseHeaders().set("Content-Type", "application/json");
 
             String strResponse = "";
             if (httpExchange.getRequestMethod().equals("GET")) {
                 strResponse = gson.toJson(returnAll());
-                //strResponse = gson.toJson(taskManager.returnAllTasks()) + gson.toJson(taskManager.returnAllSubTasks())
-                //        + gson.toJson(taskManager.returnAllEpics());
+                sendText(httpExchange, strResponse);
                 httpExchange.sendResponseHeaders(200, 0);
             } else {
                 strResponse = gson.toJson("Неверный метод");
@@ -367,7 +428,7 @@ public class HttpTaskServer {
         }
     }
 
-    private static Map<String, String> getParams(HttpExchange httpExchange) {
+    private Map<String, String> getParams(HttpExchange httpExchange) {
         String query = httpExchange.getRequestURI().getQuery();
 
         if (Objects.isNull(query)) {
@@ -386,7 +447,7 @@ public class HttpTaskServer {
         }
     }
 
-    private static String returnAll() {
+    private String returnAll() {
         Map<Long, Task> commonMap = new HashMap<>();
         for (Task task : taskManager.returnAllTasks()) {
             commonMap.put(task.getId(), task);
@@ -398,5 +459,12 @@ public class HttpTaskServer {
             commonMap.put(subTask.getId(), subTask);
         }
         return gson.toJson(commonMap);
+    }
+
+    protected void sendText(HttpExchange h, String text) throws IOException {
+        byte[] resp = text.getBytes(UTF_8);
+        h.getResponseHeaders().add("Content-Type", "application/json");
+        h.sendResponseHeaders(200, resp.length);
+        h.getResponseBody().write(resp);
     }
 }

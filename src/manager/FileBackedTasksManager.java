@@ -241,7 +241,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Сохранения менеджера истории в файл
-    private static String historyToString(HistoryManager historyManager) {
+    private String historyToString(HistoryManager historyManager) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Task> historyList = historyManager.getHistory();
         for (int i = 0; i < historyList.size(); i++) {
@@ -254,7 +254,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Восстановление менеджера истории из файла
-    static List<Long> historyFromString(String value) {
+    List<Long> historyFromString(String value) {
 
         if (Objects.isNull(value)) {
             return new ArrayList<>();
@@ -269,7 +269,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Восстанавление данных менеджера из файла при запуске программы
-    public static FileBackedTasksManager loadFromFile(File file) {
+    public FileBackedTasksManager loadFromFile(File file) {
         return new FileBackedTasksManager(file, true);
     }
 

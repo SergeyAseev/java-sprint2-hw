@@ -5,11 +5,11 @@ import kv.KVServer;
 
 public class Managers {
 
-    public static TaskManager getDefault() {
+    public TaskManager getDefault() {
         return new HTTPTaskManager(KVServer.PORT);
     }
 
-    public static HistoryManager getDefaultHistory() {
+    public HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
 }

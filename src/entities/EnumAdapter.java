@@ -7,6 +7,7 @@ import enums.Status;
 
 import java.io.IOException;
 
+@Deprecated
 public class EnumAdapter extends TypeAdapter<Status> {
 
     @Override

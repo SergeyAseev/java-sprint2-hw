@@ -19,12 +19,12 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    public SubTask(String description, String name, Enum<Status> statusEnum, long newEpicId) {
+    public SubTask(String description, String name, Status statusEnum, long newEpicId) {
         super(description, name, statusEnum);
         this.epicId = newEpicId;
     }
 
-    public SubTask(String description, String name, Enum<Status> statusEnum, long newEpicId,
+    public SubTask(String description, String name, Status statusEnum, long newEpicId,
                    LocalDateTime startTime, int duration) {
         super(description, name, statusEnum, startTime, duration);
         this.epicId = newEpicId;

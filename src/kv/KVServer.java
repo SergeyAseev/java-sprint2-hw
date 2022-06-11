@@ -99,7 +99,7 @@ public class KVServer {
         }
     }
 
-    private void register(HttpExchange h) throws IOException {
+    private void register(HttpExchange h) {
         try {
             System.out.println("\n/register");
             if ("GET".equals(h.getRequestMethod())) {
@@ -124,7 +124,7 @@ public class KVServer {
 
     public void stop() {
         System.out.println("Останавливаем сервер на порту " + PORT);
-        server.start();
+        server.stop(0);
     }
 
     private String generateApiToken() {

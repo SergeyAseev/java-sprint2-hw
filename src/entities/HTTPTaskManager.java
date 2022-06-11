@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import kv.KVTaskClient;
 import manager.FileBackedTasksManager;
+import manager.ManagerSaveException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,7 +24,6 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     @Override
     public void save() {
-        super.save();
         try {
             kvTaskClient.put("tasks/task", gson.toJson(tasks));
             kvTaskClient.put("tasks/epic", gson.toJson(epics));
@@ -35,19 +35,23 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     }
 
-    @Override
+
     public void load() {
         try {
-            tasks = gson.fromJson(kvTaskClient.load("tasks/task"), new TypeToken<HashMap<Long, Task>>() {
+            final String taskJson = kvTaskClient.load("tasks/task");
+            tasks = gson.fromJson(taskJson, new TypeToken<HashMap<Long, Task>>() {
             }.getType());
-            tasks = gson.fromJson(kvTaskClient.load("tasks/epic"), new TypeToken<HashMap<Long, Epic>>() {
+            final String epicJson = kvTaskClient.load("tasks/epic");
+            epics = gson.fromJson(epicJson, new TypeToken<HashMap<Long, Epic>>() {
             }.getType());
-            tasks = gson.fromJson(kvTaskClient.load("tasks/subtask"), new TypeToken<HashMap<Long, SubTask>>() {
+            final String subtaskJson = kvTaskClient.load("tasks/subtask");
+            subTasks = gson.fromJson(subtaskJson, new TypeToken<HashMap<Long, SubTask>>() {
             }.getType());
-            tasks = gson.fromJson(kvTaskClient.load("tasks/history"), new TypeToken<HashMap<List, Long>>() {
+            final String historyJson = kvTaskClient.load("tasks/history");
+            historyManager = gson.fromJson(historyJson, new TypeToken<HashMap<List<Task>, Long>>() {
             }.getType());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (ManagerSaveException e) {
+            e.printStackTrace();
         }
     }
 }

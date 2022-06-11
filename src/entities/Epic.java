@@ -14,11 +14,11 @@ public class Epic extends Task {
 
     private LocalDateTime epicEndTime;
 
-    public Epic(String description, String name, Enum<Status> statusEnum) {
+    public Epic(String description, String name, Status statusEnum) {
         super(description, name, statusEnum);
     }
 
-    public Epic(String description, String name, Enum<Status> statusEnum, LocalDateTime startTime, int duration) {
+    public Epic(String description, String name, Status statusEnum, LocalDateTime startTime, int duration) {
         super(description, name, statusEnum, startTime, duration);
     }
 

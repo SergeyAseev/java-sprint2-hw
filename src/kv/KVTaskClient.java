@@ -1,5 +1,7 @@
 package kv;
 
+import manager.ManagerSaveException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,7 +11,7 @@ import java.net.http.HttpResponse;
 public class KVTaskClient {
     public HttpClient client;
     private String apiToken;
-    private String url;
+    private final String url;
 
     public KVTaskClient(int port) {
         this.client = HttpClient.newHttpClient();
@@ -67,6 +69,7 @@ public class KVTaskClient {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ManagerSaveException(e.getMessage());
         }
         return answer;
     }

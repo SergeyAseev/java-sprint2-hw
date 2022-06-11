@@ -7,9 +7,10 @@ import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
 
         new KVServer().start();
-        HttpTaskServer.getInstance().start();
+        HttpTaskServer httpTaskServer = new HttpTaskServer();
+        httpTaskServer.getInstance().start();
     }
 }

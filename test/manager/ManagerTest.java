@@ -25,10 +25,6 @@ abstract class ManagerTest<T extends TaskManager> {
     private Epic epic1;
     private SubTask subTask;
 
-    private Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-            .create();
-
     public void init() {
         task = new Task("Test for addingNewTask","testAddNewTask1", Status.NEW,
                 LocalDateTime.of(2022, 5,24,0,0), 15);

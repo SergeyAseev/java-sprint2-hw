@@ -16,7 +16,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected Map<Long, Task> tasks = new HashMap<>();
 
     protected Set<Task> treeSet = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Task::getStartTime)));
-    Managers managers = new Managers();
+    protected Managers managers = new Managers();
     protected HistoryManager historyManager = managers.getDefaultHistory();
 
     /**

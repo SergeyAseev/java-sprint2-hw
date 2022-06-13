@@ -49,8 +49,12 @@ public class KVServer {
                     httpExchange.sendResponseHeaders(400, 0);
                     return;
                 }
-                httpExchange.sendResponseHeaders(200, 0);
                 responseStr = gson.toJson(data.get(key));
+                if (responseStr != null) {
+                    httpExchange.sendResponseHeaders(200, 0);
+                } else {
+                    httpExchange.sendResponseHeaders(404, 0);
+                }
             } else {
                 responseStr = gson.toJson("Нет такого метода");
                 httpExchange.sendResponseHeaders(405, 0);
@@ -63,7 +67,7 @@ public class KVServer {
         httpExchange.close();
     }
 
-    private void save(HttpExchange h) throws IOException {
+    private void save(HttpExchange h) {
         try {
             System.out.println("\n/save");
             if (!hasAuth(h)) {

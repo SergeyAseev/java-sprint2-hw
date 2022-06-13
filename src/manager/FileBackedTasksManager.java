@@ -254,7 +254,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     //Восстановление менеджера истории из файла
-    List<Long> historyFromString(String value) {
+    private List<Long> historyFromString(String value) {
 
         if (Objects.isNull(value)) {
             return new ArrayList<>();

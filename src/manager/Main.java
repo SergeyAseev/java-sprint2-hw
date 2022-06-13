@@ -1,6 +1,5 @@
 package manager;
 
-import entities.HttpTaskServer;
 import kv.KVServer;
 
 import java.io.IOException;
@@ -11,6 +10,6 @@ public class Main {
 
         new KVServer().start();
         HttpTaskServer httpTaskServer = new HttpTaskServer();
-        httpTaskServer.getInstance().start();
+        httpTaskServer.init();
     }
 }

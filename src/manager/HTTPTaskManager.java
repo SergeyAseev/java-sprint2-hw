@@ -1,7 +1,10 @@
-package entities;
+package manager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import entities.Epic;
+import entities.SubTask;
+import entities.Task;
 import kv.KVTaskClient;
 import manager.FileBackedTasksManager;
 import manager.ManagerSaveException;
@@ -51,7 +54,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             historyManager = gson.fromJson(historyJson, new TypeToken<HashMap<List<Task>, Long>>() {
             }.getType());
         } catch (ManagerSaveException e) {
-            e.printStackTrace();
+            throw new ManagerSaveException(e.getMessage());
         }
     }
 }

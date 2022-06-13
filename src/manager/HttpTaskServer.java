@@ -1,10 +1,14 @@
-package entities;
+package manager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import entities.Epic;
+import entities.LocalDateAdapter;
+import entities.SubTask;
+import entities.Task;
 import manager.Managers;
 import manager.TaskManager;
 
@@ -24,7 +28,7 @@ public class HttpTaskServer {
     private TaskManager taskManager;
     private HttpServer httpServer;
     private Gson gson;
-    static final int PORT = 8080;
+    private static final int PORT = 8080;
 
     public HttpTaskServer() {
         Managers managers = new Managers();
@@ -42,31 +46,19 @@ public class HttpTaskServer {
         init();
     }
 
-    private void init() {
-        try {
-            httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        httpServer.createContext("/tasks", this::getAllTasks);
-        httpServer.createContext("/tasks/task", this::getTask);
-        httpServer.createContext("/tasks/epic", this::getEpic);
-        httpServer.createContext("/tasks/subtask", this::getSubTask);
-        httpServer.createContext("/tasks/history", this::getHistory);
-    }
-
-    public HttpServer getInstance() throws IOException {
-
-        if (httpServer == null) {
-            HttpTaskServer httpTaskServer = new HttpTaskServer();
-            httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
-            httpServer.createContext("/tasks", httpTaskServer::getAllTasks);
-            httpServer.createContext("/tasks/task", httpTaskServer::getTask);
-            httpServer.createContext("/tasks/epic", httpTaskServer::getEpic);
-            httpServer.createContext("/tasks/subtask", httpTaskServer::getSubTask);
-            httpServer.createContext("/tasks/history", httpTaskServer::getHistory);
-        }
-        return httpServer;
+    public void init() {
+            if (httpServer != null) {
+                try {
+                    httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                httpServer.createContext("/tasks", this::getAllTasks);
+                httpServer.createContext("/tasks/task", this::getTask);
+                httpServer.createContext("/tasks/epic", this::getEpic);
+                httpServer.createContext("/tasks/subtask", this::getSubTask);
+                httpServer.createContext("/tasks/history", this::getHistory);
+            }
     }
 
     private void getHistory(HttpExchange httpExchange) {

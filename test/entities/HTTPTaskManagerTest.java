@@ -2,11 +2,10 @@ package entities;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import com.sun.net.httpserver.HttpServer;
 import enums.Status;
 import kv.KVServer;
-import kv.KVTaskClient;
+import manager.HTTPTaskManager;
+import manager.HttpTaskServer;
 import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
@@ -19,8 +18,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +39,8 @@ class HTTPTaskManagerTest {
             kvServer = new KVServer();
             kvServer.start();
             taskManager = new HTTPTaskManager(8078);
-            httpTaskServer.getInstance().start();
+            //httpTaskServer.getInstance().start();
+            httpTaskServer.init();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

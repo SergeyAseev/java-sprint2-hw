@@ -30,14 +30,13 @@ public class KVTaskClient {
                 System.out.println("Ошибка. Код состояния: " + response.statusCode());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ManagerSaveException(e.getMessage());
         }
     }
 
     // сохраняет состояние менеджера задач через запрос POST /save/<ключ>?API_TOKEN=
     public void put(String key, String json) throws IOException, InterruptedException {
         try {
-            client = HttpClient.newHttpClient();
             HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
             HttpRequest request = HttpRequest.newBuilder().
                     uri(URI.create(url + "/save/" + key + "?API_TOKEN=" + apiToken)).
@@ -47,7 +46,7 @@ public class KVTaskClient {
             HttpResponse<String> response = client.send(request, handler);
             System.out.println(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ManagerSaveException(e.getMessage());
         }
     }
 
@@ -55,7 +54,6 @@ public class KVTaskClient {
     public String load(String key) {
         String answer = null;
         try {
-            client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder().
                     uri(URI.create(url + "/load/" + key + "?API_TOKEN=" + apiToken)).
                     GET().
